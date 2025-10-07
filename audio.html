@@ -474,7 +474,48 @@
         }
     }
 
-    document.addEventListener('DOMContentLoaded', () => { initAudioPage(); registerSW(); });
+    // Background prefetch: fetch a small set of audio files once in a while to
+    // make the first plays faster, but avoid repeated aggressive loading.
+    function _prefetchKey(){ return 'quran_audio_prefetched_at'; }
+    function _prefetchDoneWithin(hours){
+      try{
+        const v = localStorage.getItem(_prefetchKey());
+        if(!v) return false;
+        const ts = Number(v);
+        if(isNaN(ts)) return false;
+        return (Date.now() - ts) < (hours||24) * 3600 * 1000;
+      }catch(e){ return false; }
+    }
+    function _markPrefetchDone(){ try{ localStorage.setItem(_prefetchKey(), String(Date.now())); }catch(e){} }
+
+    async function startBackgroundPrefetch(options = {}){
+      const { count = 5, throttleMs = 400 } = options;
+      // if we've prefetched recently, skip
+      if(_prefetchDoneWithin(24)) return;
+      try{
+        const cache = await cachePromise;
+        for(let i = 1; i <= count; i++){
+          const file = `./audio/${String(i).padStart(3,'0')}.mp3`;
+          try{
+            // skip if already cached
+            if(cache){ const m = await cache.match(file); if(m) { continue; } }
+            await loadSemaphore.acquire();
+            try{
+              const r = await fetch(file);
+              if(r && r.ok && r.status === 200){
+                try{ if(cache) await cache.put(file, r.clone()); }catch(_){ }
+              }
+            }catch(e){ /* ignore individual failures */ }
+            finally{ loadSemaphore.release(); }
+            // small throttle so we don't hammer network when app opens
+            await new Promise(r=>setTimeout(r, throttleMs));
+          }catch(e){ /* ignore per-file errors */ }
+        }
+        _markPrefetchDone();
+      }catch(e){ /* ignore failures */ }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => { startBackgroundPrefetch({count:5, throttleMs:400}); initAudioPage(); registerSW(); });
 
     // Revoke any created blob URLs when page is unloaded to free memory
     window.addEventListener('beforeunload', ()=>{
