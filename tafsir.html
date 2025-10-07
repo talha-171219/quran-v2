@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover">
+  <meta name="theme-color" content="#009688">
+  <title>📚 তাফসীর — Ibn Kathir (বাংলা)</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon-192.png" sizes="192x192" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Tafsir page specific overrides */
+    .tafsir-header{background:linear-gradient(90deg,#009688,#00796B);color:#fff;padding:14px 12px;box-shadow:0 6px 18px rgba(0,0,0,0.12);display:flex;align-items:center;gap:12px;justify-content:center;position:sticky;top:0;z-index:40}
+    .tafsir-header .left{position:absolute;left:12px}
+    .tafsir-title{font-weight:700;font-size:1.05rem}
+    .tafsir-sub{font-size:0.9rem;opacity:0.92}
+
+    .container{max-width:720px;margin:0 auto;padding:14px}
+    .vol-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;justify-items:center}
+    .vol-card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;box-shadow:0 10px 30px rgba(2,6,23,0.06);cursor:pointer;text-decoration:none;color:inherit;transition:transform .12s ease,box-shadow .12s ease;width:100%;max-width:420px}
+    .vol-card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(2,6,23,0.12)}
+    .vol-card:active{transform:translateY(1px)}
+    .vol-icon{width:56px;height:56px;border-radius:12px;background:linear-gradient(90deg,#009688,#00796B);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;flex-shrink:0}
+    .vol-meta{flex:1}
+    .vol-title{font-weight:700}
+    .vol-desc{font-size:0.92rem;color:rgba(0,0,0,0.6)}
+
+    @media(min-width:640px){ .vol-grid{grid-template-columns:repeat(3,1fr)} }
+    @media(max-width:420px){ .vol-card{padding:12px}.vol-icon{width:44px;height:44px} }
+
+    /* ensure page doesn't allow horizontal scroll on small devices */
+    html,body{overflow-x:hidden}
+
+    /* subtle ripple effect */
+    .ripple{position:relative;overflow:hidden}
+    .ripple::after{content:'';position:absolute;border-radius:999px;transform:scale(0);opacity:0.3;background:rgba(255,255,255,0.6);transition:transform .4s ease,opacity .6s ease;pointer-events:none}
+    .ripple:active::after{transform:scale(8);opacity:0}
+  </style>
+</head>
+<body class="font-bn bg-offwhite">
+  <header class="tafsir-header">
+    <div class="left"><a href="index.html" aria-label="Back to Home" style="color:rgba(255,255,255,0.95);text-decoration:none;font-size:1.1rem">←</a></div>
+    <div style="text-align:center">
+      <div style="display:flex;align-items:center;gap:10px;justify-content:center"><img src="https://i.postimg.cc/KjRpQfZw/Whats-App-Image-2025-10-06-at-12-29-35-b34f48ab.jpg" alt="logo" style="width:36px;height:36px;border-radius:6px;object-fit:cover"> <div class="tafsir-title">📚 তাফসীর — Ibn Kathir (বাংলা)</div></div>
+      <div class="tafsir-sub">ভলিউম ১–১০ (PDF)</div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section style="margin-bottom:10px;display:flex;gap:8px;align-items:center">
+      <input id="tafsirSearch" type="search" placeholder="ভলিউম/শব্দ খুঁজুন..." style="flex:1;padding:10px;border-radius:10px;border:1px solid #e6eef0;font-size:0.98rem">
+      <button id="clearSearch" style="padding:10px 12px;border-radius:10px;background:#e0f2f1;border:0">রিসেট</button>
+    </section>
+
+    <section id="tafsirGrid" class="vol-grid" aria-label="Tafsir volumes">
+      <!-- cards injected by JS -->
+    </section>
+
+    <div style="margin-top:18px;text-align:center;color:var(--muted);font-size:0.95rem">চিহ্নিত পিডিএফ ক্লিক করলে নতুন ট্যাবে খুলবে</div>
+
+    <p>তাফসীর পিডিএফ চালাতে ক্লিক করুন — নতুন ট্যাবে খুলবে।</p>
+  </main>
+
+  <script>
+    const tafsirGrid = document.getElementById('tafsirGrid');
+    const numVolumes = 10;
+    for(let i=1;i<=numVolumes;i++){
+      const a = document.createElement('a');
+      a.className='vol-card ripple';
+      a.href = `/static/pdfs/tafsir_volume_${i}.pdf`;
+      a.target = '_blank'; a.rel='noopener';
+      a.innerHTML = `<div class="vol-icon" style="background:#00796B">📘</div><div class="vol-meta"><div class="vol-title">ভলিউম ${i}</div><div class="vol-desc">তাফসীর খণ্ড ${i}</div></div>`;
+      tafsirGrid.appendChild(a);
+    }
+
+    // simple client-side search (filter by volume number or text)
+    document.getElementById('tafsirSearch').addEventListener('input', (e)=>{
+      const q = (e.target.value||'').trim().toLowerCase();
+      Array.from(tafsirGrid.children).forEach(card=>{
+        const text = card.textContent.toLowerCase();
+        card.style.display = (!q || text.includes(q)) ? '' : 'none';
+      });
+    });
+    document.getElementById('clearSearch').addEventListener('click', ()=>{ document.getElementById('tafsirSearch').value=''; document.getElementById('tafsirSearch').dispatchEvent(new Event('input')); });
+  </script>
+</body>
+</html>

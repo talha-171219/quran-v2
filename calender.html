@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>পূর্ণ বর্ষপঞ্জি</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0f3d2e;
+      --bg2:#134737;
+      --text:#f2f6f5;
+      --muted:#cfe2dc;
+      --accent:#3bd49e;
+      --accent-2:#2cc08c;
+      --card:#123f30;
+      --card-2:#0c2e23;
+      --highlight:#1f6a52;
+      --danger:#e35d5d;
+      --tab:#0a2a20;
+      --today:#2b7a60;
+      --selected:#38a37f;
+      --shadow:0 10px 28px rgba(0,0,0,.35);
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0; height:100%; background:linear-gradient(180deg,var(--bg2),var(--bg)); color:var(--text); font-family:"Noto Sans Bengali", system-ui, -apple-system, Segoe UI, Roboto, sans-serif}
+    .wrap{min-height:100%; display:grid; grid-template-rows:auto auto 1fr auto; gap:16px}
+
+    header{
+      padding:18px 20px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      gap:12px;
+    }
+    .title{
+      display:flex; align-items:center; gap:14px;
+    }
+    .title h1{ margin:0; font-size:1.6rem; letter-spacing:.3px }
+    .subtitle{ margin:0; color:var(--muted); font-weight:600 }
+
+    .controls{
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    .btn, .chip{
+      appearance:none; border:none; border-radius:10px; cursor:pointer; font-weight:700;
+      padding:10px 14px; color:var(--text); background:var(--tab); box-shadow:0 6px 18px rgba(0,0,0,.35);
+      transition:background .15s ease, transform .03s ease;
+    }
+    .btn:hover, .chip:hover{ background:#0d3327 }
+    .btn:active, .chip:active{ transform:translateY(1px) }
+    .primary{ background:linear-gradient(180deg,var(--accent),var(--accent-2)); color:#0b211a }
+    .primary:hover{ filter:brightness(1.05) }
+
+    .tabs{
+      display:flex; gap:8px; padding:0 20px;
+    }
+    .tab{
+      padding:10px 14px; border-radius:12px; background:var(--tab); color:var(--muted); font-weight:700; cursor:pointer; border:1px solid rgba(255,255,255,.06)
+    }
+    .tab.active{ background:var(--highlight); color:var(--text) }
+
+    main{
+      padding:0 20px 20px;
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:20px;
+    }
+    @media (max-width:960px){ main{ grid-template-columns:1fr } }
+
+    /* Year board */
+    .year-board{
+      background:linear-gradient(180deg,#144535,var(--card));
+      border-radius:20px; padding:16px; box-shadow:var(--shadow); border:1px solid rgba(255,255,255,.06)
+    }
+    .board-header{
+      display:flex; align-items:center; justify-content:space-between; gap:10px; padding:6px 4px 12px; border-bottom:1px dashed rgba(255,255,255,.08)
+    }
+    .year-title{ font-size:1.2rem; font-weight:700 }
+    .calendar-type{ color:var(--muted); font-weight:600 }
+    .months{
+      display:grid; gap:14px;
+      grid-template-columns: repeat(4, 1fr);
+      margin-top:14px;
+    }
+    @media (max-width:980px){ .months{ grid-template-columns: repeat(3, 1fr) } }
+    @media (max-width:720px){ .months{ grid-template-columns: repeat(2, 1fr) } }
+    @media (max-width:460px){ .months{ grid-template-columns: 1fr } }
+
+    .month{
+      background:linear-gradient(180deg,var(--card-2),#0b2a20);
+      border-radius:16px; padding:12px; border:1px solid rgba(255,255,255,.08);
+    }
+    .month-name{ margin:0 0 8px; font-weight:700; letter-spacing:.2px }
+    .weekdays{
+      display:grid; grid-template-columns: repeat(7, 1fr);
+      gap:6px; margin-bottom:8px; color:var(--muted); font-weight:600; font-size:.9rem;
+    }
+    .grid{
+      display:grid; grid-template-columns: repeat(7, 1fr);
+      gap:6px;
+    }
+    .cell{
+      height:34px; display:flex; align-items:center; justify-content:center;
+      border-radius:10px; background:#0a241c; color:#d9eee7; font-weight:600; font-variant-numeric:tabular-nums;
+      border:1px solid rgba(255,255,255,.05)
+    }
+    .cell.empty{ background:transparent; border:none }
+    .cell.today{ background:var(--today); color:#fff }
+    .cell.selected{ background:var(--selected); color:#05211a; font-weight:800 }
+    .cell:hover{ outline:2px solid rgba(255,255,255,.12) }
+
+    /* Right panel */
+    .side{
+      background:linear-gradient(180deg,#144535,var(--card));
+      border-radius:20px; padding:16px; box-shadow:var(--shadow); border:1px solid rgba(255,255,255,.06)
+    }
+    .side h3{ margin:4px 0 10px }
+    .list{ display:grid; gap:8px }
+    .row{
+      display:flex; align-items:center; justify-content:space-between;
+      background:#0b2a20; border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:10px 12px;
+    }
+    .row .label{ color:var(--muted); font-weight:600 }
+    .row .value{ font-weight:700 }
+
+    .foot{
+      display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; padding:12px 20px 20px;
+    }
+    .switch{
+      display:flex; gap:8px; background:#0b2a20; padding:8px 10px; border-radius:12px; border:1px solid rgba(255,255,255,.08)
+    }
+    .switch .chip.active{ background:var(--highlight); color:#fff }
+
+    .danger{ background:linear-gradient(180deg,#f19999,#e35d5d); color:#2a0e0e; font-weight:800 }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- Header -->
+    <header>
+      <div class="title">
+        <div>
+          <h1 class="subtitle" id="topRange">সেপ্টেম্বর–অক্টোবর ২০২৫</h1>
+          <h1 class="title-text"><span id="topYear">২০২৫ গ্রেগরিয়ান</span></h1>
+        </div>
+      </div>
+      <div class="controls">
+        <button id="backHome" class="btn">🏠 Back to home</button>
+        <button id="trackerBtn" class="btn primary">🟩 ট্র্যাকার</button>
+      </div>
+    </header>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" id="tabTimes">নামাজের সময়(demo;not real)</button>
+      <button class="tab" id="tabFest">ইসলামিক উৎসব</button>
+    </div>
+
+    <!-- Main content -->
+    <main>
+      <!-- Left: 12-month calendar -->
+      <section class="year-board">
+        <div class="board-header">
+          <div>
+            <div class="year-title" id="boardYear">২০২৫</div>
+            <div class="calendar-type" id="boardType">গ্রেগরিয়ান বর্ষপঞ্জি</div>
+          </div>
+          <div class="controls">
+            <button id="prevYear" class="btn">← আগের বছর</button>
+            <button id="nextYear" class="btn">পরের বছর →</button>
+          </div>
+        </div>
+
+        <div class="months" id="months"></div>
+      </section>
+
+      <!-- Right: info panel -->
+      <aside class="side">
+        <h3 id="panelTitle">আজকের নামাজের সময়</h3>
+        <div class="list" id="infoList">
+          <div class="row"><span class="label">ফজর</span><span class="value" id="fajr">৪:৩৭ AM</span></div>
+          <div class="row"><span class="label">সূর্যোদয়</span><span class="value" id="sunrise">৫:৫২ AM</span></div>
+          <div class="row"><span class="label">যোহর</span><span class="value" id="dhuhr">১১:৪০ AM</span></div>
+          <div class="row"><span class="label">আসর</span><span class="value" id="asr">৪:০১ PM</span></div>
+          <div class="row"><span class="label">মাগরিব</span><span class="value" id="maghrib">৫:৪০ PM</span></div>
+          <div class="row"><span class="label">ইশা</span><span class="value" id="isha">৬:৫৫ PM</span></div>
+        </div>
+
+        <div class="list" id="festList" style="display:none;">
+          <div class="row"><span class="label">রযমান শুরু</span><span class="value">আনুমানিক</span></div>
+          <div class="row"><span class="label">ইদুল ফিতর</span><span class="value">আনুমানিক</span></div>
+          <div class="row"><span class="label">ইদুল আযহা</span><span class="value">আনুমানিক</span></div>
+        </div>
+
+        <div style="margin-top:12px; display:flex; gap:8px;">
+          <button id="resetSelection" class="btn danger">সিলেকশন রিসেট</button>
+          <button id="todayBtn" class="btn">আজকে দেখাও</button>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Footer switches -->
+    <div class="foot">
+      <div class="switch" role="tablist" aria-label="ক্যালেন্ডার ধরন নির্বাচন">
+        <button class="chip active" id="gregorianChip">গ্রেগরিয়ান ক্যালেন্ডার</button>
+        <button class="chip" id="hijriChip">হিজরি ক্যালেন্ডার</button>
+      </div>
+      <small style="color:var(--muted)">লোকেশন ও ক্যালেন্ডার সেটিংস আপনার অ্যাপে কাস্টমাইজ করুন।</small>
+    </div>
+  </div>
+
+  <script>
+    // Bengali labels
+    const WEEK_BN = ['রবি','সোম','মঙ্গল','বুধ','বৃহ','শুক্র','শনি'];
+    const MONTHS_BN_G = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+    const MONTHS_BN_H = ['মুহাররম','সফর','রবিউল আউয়াল','রবিউস সানি','জমাদিউল আউয়াল','জমাদিউস সানি','রজব','শাবান','রামজান','শাওয়াল','যুল-ক্বা\'দাহ','যুল-হিজ্জাহ'];
+
+    // State
+    let calendarType = 'gregorian'; // 'gregorian' | 'hijri'
+    let currentGYear = new Date().getFullYear();
+    let selectedDate = new Date(); // track selection in Gregorian base for simplicity
+
+    // Elements
+    const monthsEl = document.getElementById('months');
+    const boardYearEl = document.getElementById('boardYear');
+    const boardTypeEl = document.getElementById('boardType');
+    const topYearEl = document.getElementById('topYear');
+    const topRangeEl = document.getElementById('topRange');
+    const prevYearBtn = document.getElementById('prevYear');
+    const nextYearBtn = document.getElementById('nextYear');
+    const gregorianChip = document.getElementById('gregorianChip');
+    const hijriChip = document.getElementById('hijriChip');
+    const tabTimes = document.getElementById('tabTimes');
+    const tabFest = document.getElementById('tabFest');
+    const infoList = document.getElementById('infoList');
+    const festList = document.getElementById('festList');
+    const todayBtn = document.getElementById('todayBtn');
+    const resetSelectionBtn = document.getElementById('resetSelection');
+    const backHome = document.getElementById('backHome');
+
+    // Navigation example: replace with your app route
+    backHome.addEventListener('click', () => {
+      // Change 'index.html' to your main Quran home route or WebView navigation
+      window.location.href = 'index.html';
+    });
+
+    // Tabs
+    tabTimes.addEventListener('click', () => {
+      tabTimes.classList.add('active'); tabFest.classList.remove('active');
+      infoList.style.display='grid'; festList.style.display='none';
+      document.getElementById('panelTitle').textContent = 'আজকের নামাজের সময়';
+    });
+    tabFest.addEventListener('click', () => {
+      tabFest.classList.add('active'); tabTimes.classList.remove('active');
+      infoList.style.display='none'; festList.style.display='grid';
+      document.getElementById('panelTitle').textContent = 'ইসলামিক উৎসব';
+    });
+
+    // Switch calendar type
+    gregorianChip.addEventListener('click', () => {
+      calendarType = 'gregorian';
+      gregorianChip.classList.add('active'); hijriChip.classList.remove('active');
+      render();
+    });
+    hijriChip.addEventListener('click', () => {
+      calendarType = 'hijri';
+      hijriChip.classList.add('active'); gregorianChip.classList.remove('active');
+      render();
+    });
+
+    prevYearBtn.addEventListener('click', () => {
+      currentGYear--;
+      render();
+    });
+    nextYearBtn.addEventListener('click', () => {
+      currentGYear++;
+      render();
+    });
+    todayBtn.addEventListener('click', () => {
+      selectedDate = new Date();
+      render();
+    });
+    resetSelectionBtn.addEventListener('click', () => {
+      selectedDate = null;
+      render();
+    });
+
+    // Utilities
+    function pad(n){ return n<10 ? '0'+n : ''+n }
+
+    // Hijri support via Intl (best-effort)
+    const hijriDFYear = new Intl.DateTimeFormat('bn-BD-u-ca-islamic', { year:'numeric' });
+    const hijriDFMonth = new Intl.DateTimeFormat('bn-BD-u-ca-islamic', { month:'numeric' });
+    const hijriDFDay = new Intl.DateTimeFormat('bn-BD-u-ca-islamic', { day:'numeric' });
+    const hijriWeekDF = new Intl.DateTimeFormat('bn-BD', { weekday:'short' });
+
+    function getWeekdayIndex(date){
+      return date.getDay(); // 0..6 (Sun..Sat)
+    }
+
+    function generateGregorianYear(year){
+      const months = [];
+      for(let m=0; m<12; m++){
+        const first = new Date(year, m, 1);
+        const monthName = MONTHS_BN_G[m];
+        const startIdx = first.getDay(); // 0..6
+        const days = new Date(year, m+1, 0).getDate(); // month length
+        const cells = [];
+        for(let i=0;i<startIdx;i++){ cells.push({ type:'empty' }) }
+        for(let d=1; d<=days; d++){
+          const dateObj = new Date(year, m, d);
+          cells.push({ type:'day', d, date: dateObj });
+        }
+        while(cells.length % 7 !== 0){ cells.push({ type:'empty' }) }
+        months.push({ name:monthName, cells, index:m });
+      }
+      return months;
+    }
+
+    // Generate Hijri months for the islamic year corresponding to currentGYear midpoint
+    function generateHijriYear(){
+      // Map: take mid of Gregorian year and find its Hijri year, then iterate days until year changes
+      const mid = new Date(currentGYear, 6, 1);
+      const hijriYearNum = parseInt(hijriDFYear.format(mid), 10);
+      // Find an approximate Gregorian start date that has hijriYearNum & month 1 (Muharram)
+      let probe = new Date(currentGYear-1, 7, 1); // start search from Aug previous year
+      while(true){
+        const y = parseInt(hijriDFYear.format(probe), 10);
+        const m = parseInt(hijriDFMonth.format(probe), 10);
+        if(y === hijriYearNum && m === 1) break;
+        probe.setDate(probe.getDate()+1);
+        if(probe.getFullYear() > currentGYear+1) break; // safety
+      }
+      const months = [];
+      let currentMonth = 1;
+      let buffer = [];
+      let monthStartWeekDay = getWeekdayIndex(probe);
+      // pre-fill empties
+      for(let i=0;i<monthStartWeekDay;i++){ buffer.push({ type:'empty' }) }
+      let cursor = new Date(probe);
+      while(true){
+        const y = parseInt(hijriDFYear.format(cursor), 10);
+        const m = parseInt(hijriDFMonth.format(cursor), 10);
+        const d = parseInt(hijriDFDay.format(cursor), 10);
+        if(y !== hijriYearNum) break;
+        // push day cell
+        buffer.push({ type:'day', d, date: new Date(cursor), hMonth:m, hYear:y });
+        // if next day changes month, finalize month
+        const next = new Date(cursor); next.setDate(next.getDate()+1);
+        const nextM = parseInt(hijriDFMonth.format(next), 10);
+        if(nextM !== m){
+          while(buffer.length % 7 !== 0){ buffer.push({ type:'empty' }) }
+          const name = MONTHS_BN_H[m-1];
+          months.push({ name, cells:buffer, index:m-1 });
+          buffer = [];
+          const wStart = getWeekdayIndex(next);
+          for(let i=0;i<wStart;i++){ buffer.push({ type:'empty' }) }
+        }
+        cursor = next;
+        currentMonth = parseInt(hijriDFMonth.format(cursor), 10);
+        if(months.length >= 12) break;
+      }
+      // Ensure 12 months
+      if(months.length < 12){
+        // Fill remaining with blanks
+        for(let k=months.length; k<12; k++){
+          months.push({ name: MONTHS_BN_H[k], cells: Array(42).fill({ type:'empty' }), index:k });
+        }
+      }
+      return months;
+    }
+
+    // Rendering
+    function renderBoardHeader(){
+      if(calendarType==='gregorian'){
+        boardYearEl.textContent = currentGYear.toString();
+        boardTypeEl.textContent = 'গ্রেগরিয়ান বর্ষপঞ্জি';
+        topYearEl.textContent = currentGYear+' গ্রেগরিয়ান';
+        const start = new Date(currentGYear,0,1);
+        const end = new Date(currentGYear,11,31);
+        topRangeEl.textContent = MONTHS_BN_G[start.getMonth()]+'–'+MONTHS_BN_G[end.getMonth()]+' '+currentGYear;
+      }else{
+        const mid = new Date(currentGYear,6,1);
+        const hYear = hijriDFYear.format(mid);
+        boardYearEl.textContent = hYear+' হিজরি';
+        boardTypeEl.textContent = 'হিজরি বর্ষপঞ্জি';
+        topYearEl.textContent = hYear+' হিজরি';
+        topRangeEl.textContent = 'পূর্ণ হিজরি বছর';
+      }
+    }
+
+    function renderMonths(){
+      monthsEl.innerHTML = '';
+      const months = calendarType==='gregorian' ? generateGregorianYear(currentGYear) : generateHijriYear();
+      months.forEach(month => {
+        const mEl = document.createElement('div');
+        mEl.className = 'month';
+        const nameEl = document.createElement('h4');
+        nameEl.className = 'month-name';
+        nameEl.textContent = month.name;
+        mEl.appendChild(nameEl);
+
+        // weekdays
+        const wEl = document.createElement('div');
+        wEl.className = 'weekdays';
+        WEEK_BN.forEach(w => {
+          const span = document.createElement('div');
+          span.textContent = w;
+          wEl.appendChild(span);
+        });
+        mEl.appendChild(wEl);
+
+        const gEl = document.createElement('div');
+        gEl.className = 'grid';
+
+        month.cells.forEach(cell => {
+          const c = document.createElement('div');
+          c.className = 'cell' + (cell.type==='empty' ? ' empty' : '');
+          if(cell.type==='day'){
+            c.textContent = cell.d;
+            c.dataset.iso = cell.date.toISOString();
+            const isToday = sameDay(cell.date, new Date());
+            if(isToday){ c.classList.add('today') }
+            if(selectedDate && sameDay(cell.date, selectedDate)){
+              c.classList.add('selected');
+            }
+            c.addEventListener('click', () => {
+              selectedDate = new Date(c.dataset.iso);
+              updateInfoPanel(selectedDate);
+              renderMonths(); // refresh selections
+            });
+          }else{
+            c.textContent = '';
+          }
+          gEl.appendChild(c);
+        });
+
+        mEl.appendChild(gEl);
+        monthsEl.appendChild(mEl);
+      });
+    }
+
+    function sameDay(a,b){
+      return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+    }
+
+    function updateInfoPanel(date){
+      // Placeholder: You can hook your prayer-time API based on location + date
+      // Here we just keep the static demo values and refresh panel title with selected date
+      const df = new Intl.DateTimeFormat('bn-BD', { dateStyle:'full' });
+      const t = df.format(date);
+      document.getElementById('panelTitle').textContent = 'নির্বাচিত তারিখ: ' + t;
+
+      // If you integrate times, set these dynamically:
+      // document.getElementById('fajr').textContent = '০৪:৩৭ AM';
+      // ...
+    }
+
+    function render(){
+      renderBoardHeader();
+      renderMonths();
+      if(selectedDate){ updateInfoPanel(selectedDate) }
+    }
+
+    // Init
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ডিজিটাল তসবিহ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0b1d1a;
+      --panel:#122a25;
+      --accent:#26c6a8;
+      --accent-dark:#1aa48b;
+      --text:#e8f5f2;
+      --muted:#b9d7cf;
+      --wood:#c79c6f;
+      --wood-dark:#8a6a4a;
+      --btn:#3a2a1f;
+      --btn-hover:#4a3527;
+      --screen:#cfeee6;
+      --screen-border:#98d6c8;
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+
+    *{box-sizing:border-box}
+    html,body{
+      height:100%;
+      margin:0;
+      background:
+        radial-gradient(1100px 600px at 10% -20%, rgba(38,198,168,.25), transparent 60%),
+        radial-gradient(900px 500px at 110% 120%, rgba(38,198,168,.18), transparent 60%),
+        var(--bg);
+      color:var(--text);
+      font-family:"Noto Sans Bengali", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+
+    .wrap{
+      min-height:100%;
+      display:grid;
+      grid-template-rows:auto 1fr auto;
+    }
+
+    header{
+      padding:18px 20px;
+      text-align:center;
+    }
+    header h1{
+      margin:0;
+      font-size:1.4rem;
+      letter-spacing:.5px;
+    }
+    header p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:.95rem;
+    }
+
+    .home-btn {
+  display:inline-block;
+  margin-top:12px;
+  padding:10px 16px;
+  background:#18443c;
+  color:#fff;
+  text-decoration:none;
+  border-radius:8px;
+  font-weight:600;
+  transition:background .2s ease;
+}
+.home-btn:hover {
+  background:#1aa48b;
+}
+
+    .panel{
+      max-width:640px;
+      margin:20px auto;
+      background:linear-gradient(180deg, #14332d, var(--panel));
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:20px;
+      box-shadow:var(--shadow);
+      padding:24px;
+    }
+
+    .tasbih{
+      display:grid;
+      gap:18px;
+      grid-template-columns: 1fr;
+    }
+
+    /* Screen */
+    .screen{
+      background:linear-gradient(180deg, var(--screen), #e6f7f2);
+      border:2px solid var(--screen-border);
+      border-radius:16px;
+      padding:16px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      box-shadow:inset 0 2px 10px rgba(0,0,0,.12);
+    }
+    .label{
+      color:#2a4b44;
+      font-weight:600;
+      letter-spacing:.3px;
+    }
+    .count{
+      font-variant-numeric: tabular-nums;
+      font-size:2.4rem;
+      font-weight:700;
+      color:#0f3a33;
+    }
+
+    /* Main action button */
+    .count-btn{
+      appearance:none;
+      border:none;
+      border-radius:18px;
+      padding:18px 22px;
+      background:
+        radial-gradient(120% 120% at 30% 20%, #513a2b, #2b211a),
+        linear-gradient(180deg, #513a2b, #2b211a);
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      cursor:pointer;
+      box-shadow:0 10px 24px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.08);
+      transition:transform .03s ease, background .2s ease, box-shadow .2s ease;
+    }
+    .count-btn:active{ transform:scale(.985) translateY(2px); box-shadow:0 6px 18px rgba(0,0,0,.5) }
+    .count-btn:hover{ background:
+        radial-gradient(120% 120% at 30% 20%, #5a4030, #34271f),
+        linear-gradient(180deg, #5a4030, #34271f);
+    }
+    .count-btn .big{
+      font-size:1.2rem;
+      font-weight:700;
+      letter-spacing:.4px;
+    }
+    .bead{
+      width:26px; height:26px;
+      border-radius:50%;
+      background:radial-gradient(circle at 35% 35%, #c79c6f, #8a6a4a 65%, #4d3a2a 100%);
+      box-shadow:inset 0 2px 3px rgba(255,255,255,.15), 0 4px 10px rgba(0,0,0,.5);
+    }
+
+    /* Secondary row */
+    .row{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .reset-btn, .minus-btn{
+      appearance:none;
+      border:none;
+      border-radius:14px;
+      padding:12px 16px;
+      background:#153b34;
+      color:var(--text);
+      cursor:pointer;
+      font-weight:600;
+      box-shadow:0 6px 16px rgba(0,0,0,.35);
+      transition:background .15s ease, transform .03s ease;
+    }
+    .reset-btn:hover, .minus-btn:hover{ background:#18443c }
+    .reset-btn:active, .minus-btn:active{ transform:translateY(1px) }
+
+    /* Preset chips */
+    .presets{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:6px;
+    }
+    .chip{
+      padding:10px 14px;
+      border-radius:999px;
+      background:#0f2622;
+      color:var(--muted);
+      border:1px solid rgba(255,255,255,.08);
+      cursor:pointer;
+      transition:background .15s ease, color .15s ease;
+    }
+    .chip:hover{ background:#12302a; color:#d7eee8 }
+
+    /* Progress ring */
+    .ring{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin-top:8px;
+    }
+    .ring svg{ width:120px; height:120px; filter:drop-shadow(0 6px 14px rgba(0,0,0,.35)) }
+    .progress-text{
+      position:absolute;
+      font-weight:700;
+      color:var(--accent);
+      text-shadow:0 2px 10px rgba(0,0,0,.4);
+    }
+
+    /* Footer */
+    footer{
+      text-align:center;
+      color:var(--muted);
+      padding:20px;
+      font-size:.9rem;
+    }
+
+    /* Responsive */
+    @media (min-width:540px){
+      .tasbih{ grid-template-columns: 1.1fr .9fr }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>ডিজিটাল তসবিহ</h1>
+      <p>ক্লিক করলে হিসাব বাড়বে, রিসেট করলে শূন্যে ফিরে যাবে। প্রিসেট দিয়ে দ্রুত লক্ষ্য ঠিক করুন।</p>
+      <a href="index.html" class="home-btn">🏠 Back to Home</a>
+</header>
+
+    <main class="panel">
+      <div class="tasbih">
+        <!-- Left: counter and controls -->
+        <section>
+          <div class="screen" aria-live="polite">
+            <span class="label">গণনা</span>
+            <span id="count" class="count">0</span>
+          </div>
+
+          <button id="countBtn" class="count-btn" aria-label="তসবিহ গুনতে চাপ দিন">
+            <div class="bead" aria-hidden="true"></div>
+            <span class="big">COUNT</span>
+          </button>
+
+          <div class="row">
+            <button id="minusBtn" class="minus-btn" aria-label="এক কমান">− এক কমান</button>
+            <button id="resetBtn" class="reset-btn" aria-label="রিসেট">রিসেট</button>
+          </div>
+
+          <div class="presets" aria-label="প্রিসেট লক্ষ্য নির্বাচন">
+            <button class="chip" data-target="33">৩৩</button>
+            <button class="chip" data-target="100">১০০</button>
+            <button class="chip" data-target="500">৫০০</button>
+            <button class="chip" data-target="1000">১০০০</button>
+          </div>
+        </section>
+
+        <!-- Right: progress ring -->
+        <aside>
+          <div class="ring" style="position:relative;">
+            <svg viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="52" fill="none" stroke="#0e251f" stroke-width="12"/>
+              <circle id="progress" cx="60" cy="60" r="52" fill="none"
+                      stroke="url(#grad)" stroke-width="12"
+                      stroke-linecap="round" stroke-dasharray="326.72"
+                      stroke-dashoffset="326.72"/>
+              <defs>
+                <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#26c6a8"/>
+                  <stop offset="100%" stop-color="#1aa48b"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div id="progressText" class="progress-text">0%</div>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <footer>
+      <span>তসবিহ রাখার সময়ে মনোযোগ ও নফল নিয়ত রাখুন।</span>
+    </footer>
+  </div>
+
+  <script>
+    // State
+    let count = 0;
+    let target = 33; // default target for progress
+
+    // Elements
+    const countEl = document.getElementById('count');
+    const progressEl = document.getElementById('progress');
+    const progressTextEl = document.getElementById('progressText');
+    const countBtn = document.getElementById('countBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const minusBtn = document.getElementById('minusBtn');
+    const chips = document.querySelectorAll('.chip');
+
+    // Helpers
+    const CIRCUMFERENCE = 2 * Math.PI * 52; // r=52 => ~326.72
+
+    function render(){
+      countEl.textContent = count;
+      const pct = Math.max(0, Math.min(100, Math.floor((count / target) * 100)));
+      const offset = CIRCUMFERENCE * (1 - pct / 100);
+      progressEl.style.strokeDashoffset = offset.toFixed(2);
+      progressTextEl.textContent = pct + '%';
+    }
+
+    // Haptics (optional for mobile, no errors if unsupported)
+    function haptic(type='light'){
+      try{
+        if (type === 'heavy') navigator.vibrate?.(30);
+        else if (type === 'medium') navigator.vibrate?.([10, 20]);
+        else navigator.vibrate?.(10);
+      }catch(e){ /* ignore */ }
+    }
+
+    // Events
+    countBtn.addEventListener('click', () => {
+      count++;
+      haptic('light');
+      render();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      count = 0;
+      haptic('medium');
+      render();
+    });
+
+    minusBtn.addEventListener('click', () => {
+      if (count > 0){
+        count--;
+        haptic('light');
+        render();
+      }
+    });
+
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        target = parseInt(chip.dataset.target, 10);
+        haptic('heavy');
+        render();
+      });
+    });
+
+    // Keyboard support (Space/Enter)
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' || e.code === 'Enter'){
+        e.preventDefault();
+        count++;
+        render();
+      }
+      if (e.code === 'Backspace'){
+        e.preventDefault();
+        count = Math.max(0, count - 1);
+        render();
+      }
+    });
+
+    // Initial render
+    render();
+  </script>
+</body>
+</html>

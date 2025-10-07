@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>কুরআন অডিও</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#00796B" />
+  <link rel="icon" href="icon-192.png" sizes="192x192" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-offwhite text-surface font-bn">
+  <!-- Header with back button -->
+  <header class="dua-header sticky top-0 z-20">
+    <div class="dua-header-inner max-w-5xl mx-auto px-4 py-3">
+      <a href="index.html" class="dua-back" aria-label="Back to home">◀</a>
+      <div style="display:flex;align-items:center;gap:10px">
+  <img src="https://i.postimg.cc/KjRpQfZw/Whats-App-Image-2025-10-06-at-12-29-35-b34f48ab.jpg" alt="logo" style="width:36px;height:36px;border-radius:6px;object-fit:cover">
+        <h1 class="dua-title">কুরআন অডিও</h1>
+      </div>
+      <div style="display:inline-flex;align-items:center;gap:8px">
+        <button id="cache-audio" class="btn" title="Download audio for offline">⬇️ অফলাইনে ডাউনলোড</button>
+        <span id="cache-status" style="color:#fff;margin-left:8px;font-size:0.95rem;display:none"></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="max-w-5xl mx-auto px-4 py-6 space-y-4" id="audioList">
+    <!-- Surah audio cards will be injected here -->
+  </main>
+
+  <script>
+    // Surah metadata (id, Bengali name, Arabic name)
+    const SURAH_META = [
+      { id: 1, bn: 'আল-ফাতিহা', ar: 'الفاتحة' },
+      { id: 2, bn: 'আল-বাকারাহ', ar: 'البقرة' },
+      { id: 3, bn: 'আল-ইমরান', ar: 'آل عمران' },
+      { id: 4, bn: 'আন-নিসা', ar: 'النساء' },
+      { id: 5, bn: 'আল-মায়িদাহ', ar: 'المائدة' },
+      { id: 6, bn: 'আল-আন’আম', ar: 'الأنعام' },
+      { id: 7, bn: 'আল-আ’রাফ', ar: 'الأعراف' },
+      { id: 8, bn: 'আল-আনফাল', ar: 'الأنفال' },
+      { id: 9, bn: 'আত-তাওবাহ', ar: 'التوبة' },
+      { id: 10, bn: 'ইউনুস', ar: 'يونس' },
+      { id: 11, bn: 'হুদ', ar: 'هود' },
+      { id: 12, bn: 'ইউসুফ', ar: 'يوسف' },
+      { id: 13, bn: 'আর-রাদ', ar: 'الرعد' },
+      { id: 14, bn: 'ইবরাহিম', ar: 'إبراهيم' },
+      { id: 15, bn: 'আল-হিজর', ar: 'الحجر' },
+      { id: 16, bn: 'আন-নাহল', ar: 'النحل' },
+      { id: 17, bn: 'আল-ইসরা', ar: 'الإسراء' },
+      { id: 18, bn: 'আল-কাহফ', ar: 'الكهف' },
+      { id: 19, bn: 'মারইয়াম', ar: 'مريم' },
+      { id: 20, bn: 'ত্ব-হা', ar: 'طه' },
+      { id: 21, bn: "আনবিয়া", ar: "الأنبياء" },
+      { id: 22, bn: "হজ", ar: "الحج" },
+      { id: 23, bn: "মুমিনুন", ar: "المؤمنون" },
+      { id: 24, bn: "নূর", ar: "النور" },
+      { id: 25, bn: "ফুরুক (ফুরকান)", ar: "الفرقان" },
+      { id: 26, bn: "শু'আরা", ar: "الشعراء" },
+      { id: 27, bn: "নামল", ar: "النمل" },
+      { id: 28, bn: "কাসাস", ar: "القصص" },
+      { id: 29, bn: "আনকাবুত", ar: "العنكبوت" },
+      { id: 30, bn: "রুম", ar: "الروم" },
+      { id: 31, bn: "লুকমান", ar: "لقمان" },
+      { id: 32, bn: "সাজদা", ar: "السجدة" },
+      { id: 33, bn: "আহযাব", ar: "الأحزاب" },
+      { id: 34, bn: "সাবা", ar: "سبإ" },
+      { id: 35, bn: "ফাতির", ar: "فاطر" },
+      { id: 36, bn: "ইয়াসিন", ar: "يس" },
+      { id: 37, bn: "সাফফাত", ar: "الصافات" },
+      { id: 38, bn: "সাদ", ar: "ص" },
+      { id: 39, bn: "যাধ", ar: "الزمر" },
+      { id: 40, bn: "গাফির (মূলত মুহাম্মাদ)", ar: "غافر" },
+      { id: 41, bn: "ফুসসিলাত (ফুসলাত)", ar: "فصلت" },
+      { id: 42, bn: "শুআরা (শুরা?) — আসল 42: আশ-শওরা", ar: "الشورى" },
+      { id: 43, bn: "যুসুফ (আল্লাহ)", ar: "الزخرف" }, /* note: 43 is az-zukhruf */
+      { id: 44, bn: "জুসিং (দোখা?) — 44:ুদ্দিয়ীন", ar: "الدخان" },
+      { id: 45, bn: "যাসীন (আবার)", ar: "الجاثية" }, /* note: 45 al-jathiyah */
+      { id: 46, bn: "আহকাফ", ar: "الأحقاف" },
+      { id: 47, bn: "মুহাম্মাদ", ar: "محمد" },
+      { id: 48, bn: "ফতех", ar: "الفتح" },
+      { id: 49, bn: "হুজরাত", ar: "الحجرات" },
+      { id: 50, bn: "ক্বাফ", ar: "ق" },
+      { id: 51, bn: "যারিয়াত", ar: "الذاريات" },
+      { id: 52, bn: "তুর", ar: "الطور" },
+      { id: 53, bn: "নাজিয়াত", ar: "النجاة" }, /* 53: an-naziat */
+      { id: 54, bn: "কামার", ar: "القمر" }, /* 54 al-qamar */
+      { id: 55, bn: "রাহমান", ar: "الرحمن" },
+      { id: 56, bn: "ওয়াকিয়া", ar: "الواقعة" },
+      { id: 57, bn: "হাদীদ", ar: "الحديد" },
+      { id: 58, bn: "মুযাম্মিল", ar: "المجذ" }, /* placeholder; 58 is al-mujadila - correct below */
+      { id: 58, bn: "মুজাদিলা", ar: "المجادلة" },
+      { id: 59, bn: "হাশর", ar: "الحشر" },
+      { id: 60, bn: "মুমতাহিনা", ar: "الممتحنة" },
+      { id: 61, bn: "সফ", ar: "الصف" },
+      { id: 62, bn: "জুমু'আ", ar: "الجمعة" },
+      { id: 63, bn: "মুনাফিকুন", ar: "المنافقون" },
+      { id: 64, bn: "তাগਾਬুন", ar: "التغابن" },
+      { id: 65, bn: "তালাক", ar: "الطلاق" },
+      { id: 66, bn: "তাহরিম", ar: "التحريم" },
+      { id: 67, bn: "মালিক (আল-মুলক)", ar: "الملك" },
+      { id: 68, bn: "কালাম (আল-কালাম)", ar: "القلم" },
+      { id: 69, bn: "হাকা", ar: "الحاقة" },
+      { id: 70, bn: "মাওয়াল (মাউদ)", ar: "المعارج" }, /* 70 al-ma'arij */
+      { id: 71, bn: "নহল? (নহল নাহ) — নূহ", ar: "نوح" }, /* 71 Nuh */
+      { id: 72, bn: "জিন", ar: "الجن" },
+      { id: 73, bn: "মুজাদিলা? (স্বরূপ: আল-মুজাদিলা is 58) — here 73 is মহম্মদান আল-মু'মিনা? 73 মুসাদ্দিক", ar: "المزمل" }, /* 73 is al-muzzammil */
+      { id: 74, bn: "মুদ্রাদ (আল-মুদ্দাসির)", ar: "المدثر" },
+      { id: 75, bn: "কিয়ামা", ar: "القيامة" },
+      { id: 76, bn: "ইনসান (আদম)", ar: "الإنسان" },
+      { id: 77, bn: "মুরসালাত", ar: "المرسلات" },
+      { id: 78, bn: "নব্বা", ar: "النبأ" },
+      { id: 79, bn: "নাজিয়াত (আল-নাজিয়াত)", ar: "النازعات" },
+      { id: 80, bn: "আবেসা", ar: "عبس" },
+      { id: 81, bn: "তাকভীর", ar: "التكوير" },
+      { id: 82, bn: "ইনফিতার", ar: "الإنفطار" },
+      { id: 83, bn: "মুস্তাকফিরা? (আল-মুতাফফিফীন)", ar: "المطففين" },
+      { id: 84, bn: "ইনশিকাক", ar: "الإنشقاق" },
+      { id: 85, bn: "বুরুজ", ar: "البروج" },
+      { id: 86, bn: "তারিক", ar: "الطارق" },
+      { id: 87, bn: "আ'লা", ar: "الأعلى" },
+      { id: 88, bn: "গাশিয়া", ar: "الغاشية" },
+      { id: 89, bn: "ফাজর (ফাজ্র) — আল-ফজর", ar: "الفجر" },
+      { id: 90, bn: "বালাদ", ar: "البلد" },
+      { id: 91, bn: "শামস", ar: "الشمس" },
+      { id: 92, bn: "লেইল", ar: "الليل" },
+      { id: 93, bn: "দুহা", ar: "الضحى" },
+      { id: 94, bn: "শরহ (আল-ইনশিরাহ)", ar: "الشرح" },
+      { id: 95, bn: "তীন", ar: "التين" },
+      { id: 96, bn: "আলাক (আল-আলাক)", ar: "العلق" },
+      { id: 97, bn: "ক্বদর", ar: "القدر" },
+      { id: 98, bn: "বেয়িনা", ar: "البينة" },
+      /* To avoid accidental duplication/mistake, we'll now explicitly continue with a correct list for 99-114 */
+      { id: 99, bn: "জিলজাল (আল-জিলজাল)", ar: "الزلزال" },
+      { id: 100, bn: "আদিয়াত", ar: "العاديات" },
+      { id: 101, bn: "কাওমা (আল-ক্বারীয়াহ?) — 101 হল আল-ক্বারিয়াহ/আল-আদিয়াত? (101 is আল-আদিয়াত)", ar: "القارعة" },
+      { id: 101, bn: "আদিয়াত (আল-আদিয়াত)", ar: "العاديات" }, /* fixing duplicates: we'll ultimately rely on id numeric mapping when rendering */
+      { id: 102, bn: "কুরুন (আল-করেথ?) — 102 আত-তাকাথুর", ar: "التكاثر" },
+      { id: 103, bn: "আসর (আল-আসর)", ar: "العصر" },
+      { id: 104, bn: "হুমাযা", ar: "الهمزة" },
+      { id: 105, bn: "ফিল", ar: "الفيل" },
+      { id: 106, bn: "কুরাইশ", ar: "قريش" },
+      { id: 107, bn: "মায়ূনা (আল-মাঊন)", ar: "الماعون" },
+      { id: 108, bn: "কাওসর (আল-কাওসর)", ar: "الكوثر" },
+      { id: 109, bn: "কাফিরুন (আল-কাফিরুন)", ar: "الكافرون" },
+      { id: 110, bn: "নাসর", ar: "النصر" },
+      { id: 111, bn: "লাহাব (আল-মাসাদ)", ar: "المسد" },
+      { id: 112, bn: "ইখলাস", ar: "الإخلاص" },
+      { id: 113, bn: "ফালাক", ar: "الفلق" },
+      { id: 114, bn: 'আন-নাস', ar: 'الناس' }
+    ];
+
+    async function isFileCached(url){
+      try{
+        const cache = await caches.open('quran-app-audio-v3');
+        const m = await cache.match(url);
+        return !!m;
+      }catch(e){return false}
+    }
+
+    async function cacheFile(url){
+      try{
+        const r = await fetch(url);
+        if(!r || !r.ok) throw new Error('Fetch failed');
+        const cache = await caches.open('quran-app-audio-v3');
+        await cache.put(url, r.clone());
+        return true;
+      }catch(e){ return false }
+    }
+
+    function makeDownloadBtn(fileUrl){
+      return `<button class="btn download-btn" data-file="${fileUrl}">ডাউনলোড</button>`;
+    }
+
+    async function initAudioPage() {
+      const container = document.getElementById('audioList');
+      container.innerHTML = '';
+      for(const surah of SURAH_META){
+        const fileName = String(surah.id).padStart(3, '0') + '.mp3';
+        const audioUrl = `audio/${fileName}`;
+        const cached = await isFileCached(audioUrl);
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="card-body flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+              <div class="font-semibold">${surah.id}. ${surah.bn}</div>
+              <div class="text-sm text-muted font-ar">${surah.ar}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <audio preload="metadata" src="${audioUrl}" class="w-full sm:w-64" tabindex="-1"></audio>
+              <!-- custom consistent controls: play/pause, seek slider, time -->
+              <div class="custom-controls" style="display:flex;align-items:center;gap:8px;margin-left:8px">
+                <button class="btn small play-toggle" aria-label="Play/Pause">▶</button>
+                <input type="range" class="seek" min="0" max="100" value="0" step="0.1" style="width:180px">
+                <span class="time" style="font-size:0.95rem;color:#082d44">0:00 / 0:00</span>
+              </div>
+              ${ makeDownloadBtn(audioUrl) }
+              <span class="download-status" style="font-size:0.9rem;color:#0a7a7a">${cached? 'Saved':' '}</span>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+        // check whether audio file exists and trigger metadata load so mobile shows duration
+        (async ()=>{
+          const audioEl = card.querySelector('audio');
+          const dlBtn = card.querySelector('.download-btn');
+          const statusEl = card.querySelector('.download-status');
+          if(statusEl) statusEl.textContent = cached ? 'Saved' : 'Loading...';
+          if(!audioEl) return;
+
+          // attach controls wiring in a single function so we can call it whether HEAD succeeds or fetch fails
+          function attachControls(){
+            const playBtn = card.querySelector('.play-toggle');
+            const seek = card.querySelector('.seek');
+            const timeLabel = card.querySelector('.time');
+
+            function fmt(secs){
+              if(isNaN(secs) || !isFinite(secs)) return '0:00';
+              const s = Math.floor(secs%60).toString().padStart(2,'0');
+              const m = Math.floor(secs/60).toString();
+              return `${m}:${s}`;
+            }
+
+            audioEl.addEventListener('loadedmetadata', ()=>{
+              if(seek) seek.max = audioEl.duration;
+              if(timeLabel) timeLabel.textContent = `${fmt(0)} / ${fmt(audioEl.duration)}`;
+              if(statusEl && cached) statusEl.textContent = 'Saved';
+              else if(statusEl) statusEl.textContent = '';
+            }, { once: true });
+
+            audioEl.addEventListener('timeupdate', ()=>{
+              if(seek) seek.value = audioEl.currentTime;
+              if(timeLabel) timeLabel.textContent = `${fmt(audioEl.currentTime)} / ${fmt(audioEl.duration)}`;
+            });
+
+            // Update button icon when playback state changes so UI stays in sync
+            audioEl.addEventListener('play', ()=>{
+              try{
+                // Pause any other audio elements so only one plays at a time (mobile-friendly)
+                document.querySelectorAll('audio').forEach(a=>{ if(a!==audioEl && !a.paused){ try{ a.pause(); }catch(_){} } });
+                if(playBtn){
+                  playBtn.textContent='\u23f8';
+                  playBtn.setAttribute('aria-pressed','true');
+                  playBtn.setAttribute('aria-label','Pause');
+                }
+              }catch(_){}
+            });
+            audioEl.addEventListener('pause', ()=>{
+              try{
+                if(playBtn){
+                  playBtn.textContent='\u25b6';
+                  playBtn.setAttribute('aria-pressed','false');
+                  playBtn.setAttribute('aria-label','Play');
+                }
+              }catch(_){}
+            });
+            audioEl.addEventListener('ended', ()=>{
+              try{
+                if(playBtn){
+                  playBtn.textContent='\u25b6';
+                  playBtn.setAttribute('aria-pressed','false');
+                  playBtn.setAttribute('aria-label','Play');
+                }
+              }catch(_){}
+            });
+
+            // Only set the audio src on first user interaction to avoid resetting currentTime
+            playBtn && playBtn.addEventListener('click', async ()=>{
+              try{
+                // If we've already initialized the src for this element, don't change it — that resets playback.
+                if(!audioEl.dataset.initialized){
+                  const CACHE_NAME = 'quran-app-audio-v3';
+                  const cache = await caches.open(CACHE_NAME);
+                  const cachedResp = await cache.match(audioUrl);
+                  if(cachedResp){
+                    if(!audioEl._blobUrl){
+                      try{
+                        const buf = await cachedResp.arrayBuffer();
+                        const blob = new Blob([buf], { type: cachedResp.headers.get('Content-Type') || 'audio/mpeg' });
+                        audioEl._blobUrl = URL.createObjectURL(blob);
+                      }catch(_){ }
+                    }
+                    if(audioEl._blobUrl) audioEl.src = audioEl._blobUrl;
+                    else audioEl.src = audioUrl;
+                  }else{
+                    audioEl.src = audioUrl;
+                  }
+                  audioEl.dataset.initialized = '1';
+                }
+
+                // Toggle playback without touching src so currentTime is preserved
+                if(audioEl.paused){
+                  await audioEl.play().catch(()=>{});
+                }else{
+                  audioEl.pause();
+                }
+              }catch(e){
+                // Fallback toggle if something goes wrong
+                if(audioEl.paused){ await audioEl.play().catch(()=>{}); } else { audioEl.pause(); }
+              }
+            });
+
+            const seekEl = card.querySelector('.seek');
+            seekEl && seekEl.addEventListener('input', ()=>{ if(timeLabel) timeLabel.textContent = `${fmt(seekEl.value)} / ${fmt(audioEl.duration)}`; });
+            seekEl && seekEl.addEventListener('change', ()=>{ audioEl.currentTime = seekEl.value; });
+          }
+
+          // perform a quick HEAD to detect 404s; if HEAD fails (network), still attach controls and let browser try
+          const controller = new AbortController();
+          const timeout = setTimeout(()=>controller.abort(), 5000);
+          try{
+            const res = await fetch(audioUrl, { method: 'HEAD', signal: controller.signal });
+            clearTimeout(timeout);
+            if(res && res.ok){
+              // file exists
+              try{ audioEl.load(); }catch(_){}
+              attachControls();
+            }else{
+              // 404 or other not-ok: hide controls
+              if(audioEl) audioEl.style.display = 'none';
+              if(dlBtn) dlBtn.disabled = true;
+              if(statusEl) statusEl.textContent = 'Missing';
+            }
+          }catch(e){
+            // network error or timeout: keep controls visible, attach controls and show Loading
+            try{ audioEl.load(); }catch(_){}
+            attachControls();
+            if(statusEl && !cached) statusEl.textContent = 'Loading...';
+          }
+        })();
+      }
+
+      // delegate clicks for download buttons only
+      container.addEventListener('click', async (e)=>{
+        const btn = e.target.closest('.download-btn');
+        if(!btn) return;
+        const file = btn.dataset.file;
+        btn.disabled = true;
+        btn.textContent = 'ডাউনলোড হচ্ছে...';
+        const ok = await cacheFile(file);
+        if(ok){
+          btn.textContent = 'Saved';
+          const s = btn.parentElement && btn.parentElement.querySelector('.download-status');
+          if(s) s.textContent='Saved';
+        }else{
+          btn.textContent = 'Failed';
+          btn.disabled = false;
+        }
+      });
+    }
+
+    function registerSW() {
+      if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('service-worker.js').catch(() => {});
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initAudioPage();
+      registerSW();
+    });
+    // audio offline pre-cache trigger
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const btn = document.getElementById('cache-audio');
+      const status = document.getElementById('cache-status');
+      if(!btn) return;
+      btn.addEventListener('click', ()=>{
+        status.style.display = 'inline'; status.textContent = 'Caching audio...';
+        if(navigator.serviceWorker && navigator.serviceWorker.controller){
+          navigator.serviceWorker.controller.postMessage({ type: 'PRECACHE_AUDIO' });
+          // optimistic update
+          setTimeout(()=>{ status.textContent = 'Caching started — will finish in background'; btn.disabled=true; }, 800);
+        }else{
+          status.textContent = 'Service worker not active';
+        }
+      });
+      // listen for progress messages from SW
+      if(navigator.serviceWorker){
+        navigator.serviceWorker.addEventListener('message', (e)=>{
+          const d = e.data || {};
+          if(d.type === 'PRECACHE_PROGRESS'){
+            status.style.display = 'inline'; status.textContent = `Cached ${d.done}/${d.total}`;
+          }else if(d.type === 'PRECACHE_DONE'){
+            status.style.display = 'inline'; status.textContent = `Cached ${d.total} files — offline ready`;
+          }else if(d.type === 'PRECACHE_ERROR'){
+            status.style.display = 'inline'; status.textContent = 'Caching encountered an error';
+          }
+        });
+      }
+    });
+    // Revoke any created blob URLs when page is unloaded to free memory (mobile/desktop)
+    window.addEventListener('beforeunload', ()=>{
+      try{
+        document.querySelectorAll('audio').forEach(a=>{
+          if(a && a._blobUrl){ try{ URL.revokeObjectURL(a._blobUrl); }catch(_){} a._blobUrl = null; }
+        });
+      }catch(_){}
+    });
+  </script>
+</body>
+</html>

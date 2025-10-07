@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>দু'আ ও আজকার</title>
+  <link rel="icon" href="icon-192.png" sizes="192x192" type="image/png" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#00796B" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-offwhite text-surface font-bn">
+  <header class="dua-header sticky top-0 z-20">
+    <div class="dua-header-inner max-w-5xl mx-auto px-4 py-3">
+      <a href="index.html" class="dua-back" aria-label="Back to home">◀</a>
+      <div style="display:flex;align-items:center;gap:10px">
+  <img src="https://i.postimg.cc/KjRpQfZw/Whats-App-Image-2025-10-06-at-12-29-35-b34f48ab.jpg" alt="logo" style="width:36px;height:36px;border-radius:6px;object-fit:cover">
+        <h1 class="dua-title">দু'আ</h1>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 py-6">
+    <section class="mb-4 flex gap-2">
+      <input id="duaSearch" type="search" placeholder="দু'আ/অনুবাদ খুঁজুন..." class="w-full px-3 py-2 rounded-md" />
+      <button id="viewBookmarkedDuas" class="btn">বুকমার্ক</button>
+    </section>
+
+    <section id="duaList" class="space-y-4">
+      <!-- duas injected by script.js -->
+    </section>
+
+    <footer class="max-w-5xl mx-auto px-4 py-6 text-sm text-muted">
+      <p>প্রগ্রেসিভ ওয়েব অ্যাপ — অফলাইনে কাজ করে · <a id="aboutLinkDua" href="#" class="underline">About this App</a></p>
+    </footer>
+
+    <!-- About modal (hidden) -->
+    <div id="aboutModal" class="hidden" aria-hidden="true"></div>
+  </main>
+
+  <script src="pwa.js" defer></script>
+  <script src="dua.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => { initDuaPage(); });
+  </script>
+</body>
+</html>

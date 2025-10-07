@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#055160">
+  <title>Home — আল-কুরআন</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon-192.png" sizes="192x192" type="image/png">
+  <style>
+    /* Home page styles: keep it minimal and button-only */
+    :root{ --card-radius:12px }
+    body{background:var(--bg);font-family:inherit;margin:0;padding:18px}
+    .home-wrap{max-width:720px;margin:10px auto}
+    .home-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .home-title{font-size:1.2rem;font-weight:700;color:var(--accent)}
+    .nav-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .app-logo{width:44px;height:44px;border-radius:8px;object-fit:cover}
+    .nav-card{background:var(--card);border-radius:var(--card-radius);padding:14px;display:flex;gap:12px;align-items:center;text-decoration:none;color:inherit;border:1px solid rgba(5,81,96,0.06);box-shadow:0 6px 20px rgba(2,6,23,0.06)}
+    .nav-card .icon{font-size:26px;width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff}
+    .nav-card .meta{flex:1}
+    .nav-card .meta .title{font-weight:700;margin-bottom:4px}
+    .nav-card .meta .desc{font-size:0.95rem;color:var(--muted)}
+    /* color accents */
+    .c-quran{background:linear-gradient(135deg,var(--accent),#0a7a7a)}
+    .c-audio{background:linear-gradient(135deg,#b58b2f,#ff8a00)}
+    .c-dua{background:linear-gradient(135deg,#2563eb,#7c3aed)}
+    .c-book{background:linear-gradient(135deg,#10b981,#059669)}
+    .c-settings{background:linear-gradient(135deg,#64748b,#334155)}
+    .c-tafsir{background:linear-gradient(135deg,#ef4444,#dc2626)}
+    .c-tasbih{background:linear-gradient(135deg,var(--accent),#0a7a7a)}
+    .c-calender{background:linear-gradient(135deg,var(--accent),#056a10)}
+    .c-qibla{background:linear-gradient(135deg,#2563eb,#7c3aed)}
+    @media(min-width:640px){ .nav-grid{grid-template-columns:repeat(3,1fr)} }
+  </style>
+</head>
+<body>
+  <div style="height:52px;background:linear-gradient(90deg,#009688,#00796B);display:flex;align-items:center;gap:12px;padding:8px 14px;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,0.08)">
+    <img src="https://i.postimg.cc/KjRpQfZw/Whats-App-Image-2025-10-06-at-12-29-35-b34f48ab.jpg" alt="logo" style="width:36px;height:36px;border-radius:8px;object-fit:cover">
+    <div style="font-weight:700;font-size:1.05rem">আল-কুরআন</div>
+  </div>
+  <div class="home-wrap">
+    <div class="home-header" style="border-top:6px solid transparent">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="home-title">আল-কুরআন</div>
+      </div>
+      <div style="color:var(--muted)">ভাষা: বাংলা</div>
+    </div>
+
+    <section class="nav-grid" role="navigation" aria-label="Main navigation">
+      <a class="nav-card" href="quran.html" aria-label="Quran Read">
+        <div class="icon c-quran">📖</div>
+        <div class="meta"><div class="title">কুরআন পাঠ</div><div class="desc">সূরা তালিকা ও বাংলা অনুবাদ</div></div>
+      </a>
+
+      <a class="nav-card" href="audio.html" aria-label="Audio">
+        <div class="icon c-audio">🔊</div>
+        <div class="meta"><div class="title">অডিও</div><div class="desc">সকল সূরার অডিও</div></div>
+      </a>
+
+      <a class="nav-card" href="dua.html" aria-label="Dua">
+        <div class="icon c-dua">🤲</div>
+        <div class="meta"><div class="title">দোয়া</div><div class="desc">বিভিন্ন দোয়া</div></div>
+      </a>
+
+      <a class="nav-card" href="tafsir.html" aria-label="Tafsir">
+        <div class="icon c-tafsir">📚</div>
+        <div class="meta"><div class="title">তাফসীর</div><div class="desc">Ibn Kathir (বাংলা)</div></div>
+      </a>
+
+      <a class="nav-card" href="tasbih.html" aria-label="Tasbih">
+        <div class="icon c-tasbih">📿</div>
+        <div class="meta"><div class="title">তাসবিহ</div><div class="desc">গণনা ও স্মরণ</div></div>
+      </a>
+
+      <a class="nav-card" href="calender.html" aria-label="Calender">
+        <div class="icon c-calender">📅</div>
+        <div class="meta"><div class="title">ক্যালেন্ডার</div><div class="desc">মহররম মাসের ক্যালেন্ডার</div></div>
+      </a>
+
+      <a class="nav-card" href="qibla.html" aria-label="Qibla">
+        <div class="icon c-qibla">🧭</div>
+        <div class="meta"><div class="title">কিবলা</div><div class="desc">মক্কার দিক নির্দেশনা</div></div>
+      </a>
+
+
+      <a class="nav-card" href="quran.html#bookmarks" aria-label="Bookmarks">
+        <div class="icon c-book">📌</div>
+        <div class="meta"><div class="title">বুকমার্ক</div><div class="desc">সংরক্ষিত আয়াত</div></div>
+      </a>
+
+      <a class="nav-card" href="quran.html#settings" aria-label="Settings">
+        <div class="icon c-settings">⚙️</div>
+        <div class="meta"><div class="title">সেটিংস</div><div class="desc">অ্যাপ সেটিংস</div></div>
+      </a>
+    </section>
+  </div>
+</body>
+</html>

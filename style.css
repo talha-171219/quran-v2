@@ -1,0 +1,145 @@
+/* Base and Fonts */
+:root{
+  --bg:#f4f6f9;
+  --card:#ffffff;
+  --muted:#666;
+  --accent:#055160; /* deep teal */
+  --accent-2:#b58b2f; /* gold */
+  --success:#28a745;
+  --glass:rgba(255,255,255,0.8);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;font-family:"Noto Sans Bengali",system-ui,-apple-system,Segoe UI,Roboto,"Noto Naskh Arabic",serif;
+  background:var(--bg);color:#222;-webkit-font-smoothing:antialiased;
+}
+#app-container{
+  max-width:640px;margin:0 auto;min-height:100vh;background:var(--card);box-shadow:0 6px 18px rgba(0,0,0,.08);position:relative;overflow:hidden;border-radius:10px;
+}
+
+/* screens */
+.screen{position:absolute;inset:0;padding-bottom:72px;overflow:auto;transform:translateX(100%);transition:transform .28s ease}
+.screen.active{transform:translateX(0)}
+.screen.left{transform:translateX(-100%)}
+
+/* topbar */
+.topbar{display:flex;align-items:center;gap:12px;padding:12px 14px;background:linear-gradient(90deg,#074a4f,#0b3b4a);color:#fff;position:sticky;top:0;z-index:40}
+.app-title{flex:1;margin:0;font-size:1.15rem}
+.icon-btn{background:none;border:none;color:inherit;font-size:1.05rem;padding:6px;border-radius:8px;cursor:pointer}
+.icon-btn:active{transform:scale(.98)}
+
+/* dua page header */
+.dua-header{position:sticky;top:0;z-index:60;background:linear-gradient(90deg,var(--accent),#0a7a7a);color:#fff}
+.dua-header-inner{display:flex;align-items:center;gap:12px;padding:12px 14px}
+.dua-back{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,0.14);color:#fff;text-decoration:none;font-size:1.15rem;font-weight:700;box-shadow:0 2px 6px rgba(2,6,23,0.12)}
+.dua-back:active{transform:translateX(-1px)}
+.dua-title{flex:1;margin:0;font-size:1.15rem;font-weight:700}
+
+
+.controls{padding:12px}
+#surah-search{width:100%;padding:10px;border-radius:10px;border:1px solid #e2e8f0;font-size:1rem}
+.controls-row{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+.btn{padding:8px 12px;border-radius:8px;border:1px solid transparent;background:#eef1f4;cursor:pointer}
+.btn.primary{background:var(--success);color:#fff}
+.btn.danger{background:#ff4d4f;color:#fff}
+
+/* header action buttons (flat + icons) */
+.btn.primary{background:linear-gradient(90deg,var(--accent-2),var(--accent));color:#fff;border:0;box-shadow:0 6px 16px rgba(5,81,96,0.12)}
+.btn.primary:active{transform:translateY(1px)}
+.header-actions .action-icon{font-size:1.05rem}
+.header-actions .action-label{font-size:0.95rem}
+
+/* SPA panels */
+.spa-panel{position:fixed;right:12px;bottom:12px;left:12px;top:72px;max-width:760px;margin:0 auto;background:var(--card);border-radius:12px;box-shadow:0 20px 50px rgba(2,6,23,0.18);z-index:160;overflow:auto}
+.spa-panel .panel-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #eee}
+.spa-panel .panel-body{padding:12px}
+.spa-panel.hidden{display:none}
+.close-panel{background:none;border:0;font-size:1.1rem;cursor:pointer}
+
+/* surah list layout improvements */
+.surah-item{display:flex;align-items:center;padding:14px;border-bottom:1px solid #f0f0f0;cursor:pointer}
+.surah-id{width:44px;height:44px;min-width:44px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;margin-right:12px}
+.surah-info{flex:1}
+.surah-info h3{margin:0;font-size:1rem}
+.surah-info p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
+.surah-arabic{margin-left:auto;font-family:"Noto Naskh Arabic","Scheherazade",serif;font-size:1.4rem}
+
+@media(max-width:640px){
+  .header-actions .action-btn{padding:8px 8px;font-size:.95rem}
+  .spa-panel{left:8px;right:8px;top:64px}
+}
+
+/* list */
+.list{padding-bottom:40px}
+.surah-item{display:flex;align-items:center;padding:14px;border-bottom:1px solid #f0f0f0;cursor:pointer}
+.surah-id{width:36px;height:36px;min-width:36px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;margin-right:12px}
+.surah-info h3{margin:0;font-size:1rem}
+.surah-info p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
+.surah-arabic{margin-left:auto;font-family:"Noto Naskh Arabic","Scheherazade",serif;font-size:1.4rem}
+
+/* viewer */
+.viewer-top{align-items:center}
+.verses{padding:12px}
+.verse-item{padding:18px;border-bottom:1px solid #f2f2f2}
+.verse-arabic{font-family:"Noto Naskh Arabic",serif;font-size:22px;text-align:right;direction:rtl;line-height:2;color:#082d44}
+.verse-bengali{font-size:15px;line-height:1.6;color:#333;margin-top:8px}
+.verse-meta{display:flex;gap:10px;align-items:center;margin-top:8px}
+.verse-actions{margin-left:auto;display:flex;gap:8px}
+.small-btn{background:#eef1f4;border:0;padding:6px;border-radius:6px;cursor:pointer}
+
+/* dua card styles */
+.card{background:var(--glass);border-radius:10px;padding:0;margin-bottom:12px;box-shadow:0 4px 10px rgba(2,6,23,0.04)}
+.card-body{padding:14px}
+.card-title{margin:0;font-size:1.05rem}
+.font-ar{font-family:"Noto Naskh Arabic","Amiri","Noto Naskh Arabic",serif;font-size:20px;direction:rtl;text-align:right;color:#082d44}
+.verse-bn{font-size:15px;line-height:1.6;color:#333;margin-top:8px}
+.icon-btn{background:none;border:none;color:inherit;font-size:1.05rem;padding:6px;border-radius:8px;cursor:pointer}
+
+
+/* panels (bookmarks/settings) */
+.panel{position:fixed;right:0;top:0;height:100%;width:100%;max-width:420px;background:var(--card);box-shadow:-8px 0 24px rgba(0,0,0,.12);transform:translateX(110%);transition:transform .26s ease;z-index:80}
+.panel.open{transform:translateX(0)}
+.panel-header{display:flex;align-items:center;justify-content:space-between;padding:12px;border-bottom:1px solid #eee}
+.panel-body{padding:12px;overflow:auto}
+
+.settings-body .setting-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0}
+
+/* toast */
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:rgba(0,0,0,.85);color:#fff;padding:8px 12px;border-radius:18px;font-size:.95rem;z-index:200;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1;pointer-events:auto}
+
+/* loading */
+.loading-message{text-align:center;padding:48px;color:#9aa0a6}
+
+/* utilities */
+.hidden{display:none}
+
+/* responsive: keep mobile-first */
+@media(min-width:800px){
+  #app-container{border-radius:18px}
+  .surah-arabic{font-size:1.6rem}
+}
+
+/* dark theme */
+body.dark{background:#0f1724;color:#e6eef6}
+body.dark #app-container{background:#0b1220;color:#e6eef6}
+body.dark .topbar{background:linear-gradient(90deg,#05292e,#0b5760)}
+body.dark .surah-item{border-bottom-color:rgba(255,255,255,.04)}
+body.dark .panel{background:#07101a}
+body.dark .verse-arabic{color:#9dd7ff}
+body.dark .verse-bengali{color:#dfeef8}
+
+/* Custom audio controls responsive tweaks */
+.custom-controls{display:flex;align-items:center;gap:8px}
+.custom-controls .play-toggle{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px}
+.custom-controls .seek{width:220px}
+.custom-controls .time{white-space:nowrap}
+
+@media(max-width:480px){
+  .card-body{padding:12px}
+  .custom-controls{flex-wrap:wrap;gap:6px}
+  .custom-controls .seek{width:140px}
+  .custom-controls .time{order:3;font-size:0.9rem}
+  .custom-controls .play-toggle{order:2}
+}
