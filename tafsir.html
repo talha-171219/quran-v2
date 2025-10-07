@@ -68,7 +68,8 @@
     for(let i=1;i<=numVolumes;i++){
       const a = document.createElement('a');
       a.className='vol-card ripple';
-      a.href = `/static/pdfs/tafsir_volume_${i}.pdf`;
+      a.href = `./static/pdfs/tafsir_volume_${i}.pdf`;
+
       a.target = '_blank'; a.rel='noopener';
       a.innerHTML = `<div class="vol-icon" style="background:#00796B">📘</div><div class="vol-meta"><div class="vol-title">ভলিউম ${i}</div><div class="vol-desc">তাফসীর খণ্ড ${i}</div></div>`;
       tafsirGrid.appendChild(a);
