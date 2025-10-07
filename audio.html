@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>কুরআন অডিও</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#00796B" />
+  <link rel="icon" href="icon-192.png" sizes="192x192" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Small tweaks for responsive controls */
+    .card { background: #fff; border-radius: 10px; padding: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .btn.small { padding: 6px 8px; font-size: 0.95rem; }
+    .custom-controls { min-width: 200px; }
+    @media (max-width:640px){ .custom-controls{ width:100%; margin-top:8px } .card-body{ gap:10px } }
+  </style>
+</head>
+<body class="bg-offwhite text-surface font-bn">
+  <!-- Header with back button -->
+  <header class="dua-header sticky top-0 z-20">
+    <div class="dua-header-inner max-w-5xl mx-auto px-4 py-3">
+      <a href="index.html" class="dua-back" aria-label="Back to home">◀</a>
+      <div style="display:flex;align-items:center;gap:10px">
+        <img src="https://i.postimg.cc/KjRpQfZw/Whats-App-Image-2025-10-06-at-12-29-35-b34f48ab.jpg" alt="logo" style="width:36px;height:36px;border-radius:6px;object-fit:cover">
+        <h1 class="dua-title">কুরআন অডিও</h1>
+      </div>
+      <div style="display:inline-flex;align-items:center;gap:8px">
+        <button id="cache-audio" class="btn" title="Download audio for offline">⬇️ অফলাইনে ডাউনলোড</button>
+        <span id="cache-status" style="color:#fff;margin-left:8px;font-size:0.95rem;display:none"></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="max-w-5xl mx-auto px-4 py-6 space-y-4" id="audioList">
+    <!-- Surah audio cards will be injected here -->
+  </main>
+
+  <script>
+    // Built-in surah metadata (Bengali display name + Arabic name) for all 114 surahs.
+    // This ensures friendly names are shown even if local quran.json lacks proper titles.
+    const SURAH_META = [
+      {id:1, bn:'আল-ফাতিহা', ar:'الفاتحة'},
+      {id:2, bn:'আল-বাকারাহ', ar:'البقرة'},
+      {id:3, bn:'আল-ইমরান', ar:'آل عمران'},
+      {id:4, bn:'আন-নিসা', ar:'النساء'},
+      {id:5, bn:'আল-মায়িদা', ar:'المائدة'},
+      {id:6, bn:'আল-আনআম', ar:'الأنعام'},
+      {id:7, bn:'আল-আরাফ', ar:'الأعراف'},
+      {id:8, bn:'আল-আনফাল', ar:'الأنفال'},
+      {id:9, bn:'আত-তাওবা', ar:'التوبة'},
+      {id:10, bn:'ইউনুস', ar:'يونس'},
+      {id:11, bn:'হুদ', ar:'هود'},
+      {id:12, bn:'ইউসুফ', ar:'يوسف'},
+      {id:13, bn:'আর-রাদ', ar:'الرعد'},
+      {id:14, bn:'ইব্রাহিম', ar:'إبراهيم'},
+      {id:15, bn:'আল-হিজর', ar:'الحجر'},
+      {id:16, bn:'আন-নাহত', ar:'النحل'},
+      {id:17, bn:'আল-ইসারা', ar:'الإسراء'},
+      {id:18, bn:'আল-কাহফ', ar:'الكهف'},
+      {id:19, bn:'মরিয়াম', ar:'مريم'},
+      {id:20, bn:'তা-হা', ar:'طه'},
+      {id:21, bn:'আন-নবিয়া', ar:'الأنبياء'},
+      {id:22, bn:'আল-হাজ্জ', ar:'الحج'},
+      {id:23, bn:'আল-মুমিনুন', ar:'المؤمنون'},
+      {id:24, bn:'আন-নূর', ar:'النور'},
+      {id:25, bn:'আল-ফুরকান', ar:'الفرقان'},
+      {id:26, bn:'আশ-শোআরা', ar:'الشعراء'},
+      {id:27, bn:'আন-নামল', ar:'النمل'},
+      {id:28, bn:'আল-কাসাস', ar:'القصص'},
+      {id:29, bn:'আল-আনকাবুত', ar:'العنكبوت'},
+      {id:30, bn:'আর-রূম', ar:'الروم'},
+      {id:31, bn:'লুকমান', ar:'لقمان'},
+      {id:32, bn:'এস-সিজদা', ar:'السجدة'},
+      {id:33, bn:'আল-আহযাব', ar:'الأحزاب'},
+      {id:34, bn:'সাবা', ar:'سبأ'},
+      {id:35, bn:'ফাতির', ar:'فاطر'},
+      {id:36, bn:'ইয়াসীন', ar:'يس'},
+      {id:37, bn:'আস-সাফফাত', ar:'الصافات'},
+      {id:38, bn:'সাদ', ar:'ص'},
+      {id:39, bn:'আজ-জুমরাহ', ar:'الزمر'},
+      {id:40, bn:'গাফির', ar:'غافر'},
+      {id:41, bn:'ফুসিলাত', ar:'فصلت'},
+      {id:42, bn:'আশ-শুরা', ar:'الشورى'},
+      {id:43, bn:'আজ-জুখরফ', ar:'الزخرف'},
+      {id:44, bn:'আদ-দুখান', ar:'الدخان'},
+      {id:45, bn:'আল-জাসিয়া', ar:'الجاثية'},
+      {id:46, bn:'আল-মুজাদিলা', ar:'المدثر'},
+      {id:47, bn:'আল-হাশর', ar:'الحشر'},
+      {id:48, bn:'আল-মুমতাহিনা', ar:'الممتحنة'},
+      {id:49, bn:'আল-সাফ', ar:'الصف'},
+      {id:50, bn:'আল-জুমা', ar:'الجمعة'},
+      {id:51, bn:'আল-মুনাফিকুন', ar:'المنافقون'},
+      {id:52, bn:'আত-তাগাবুন', ar:'التغابن'},
+      {id:53, bn:'আত-তারিক', ar:'الطارق'},
+      {id:54, bn:'আল-আজা', ar:'الأعلى'},
+      {id:55, bn:'আদ-দুহা', ar:'الضحى'},
+      {id:56, bn:'আশ-শারহ', ar:'الشرح'},
+      {id:57, bn:'আল-তিন', ar:'التين'},
+      {id:58, bn:'আল-আলাক', ar:'العلق'},
+      {id:59, bn:'আল-কাদর', ar:'القدر'},
+      {id:60, bn:'আল-বায়িনা', ar:'البينة'},
+      {id:61, bn:'আল-যাল', ar:'الزلزلة'},
+      {id:62, bn:'আদ-দিরা', ar:'العاديات'},
+      {id:63, bn:'আল-কাওসার', ar:'الكوثر'},
+      {id:64, bn:'আল-কাশার', ar:'الكافرون'},
+      {id:65, bn:'আল-নাসর', ar:'النصر'},
+      {id:66, bn:'আল-মাসাদ', ar:'المسد'},
+      {id:67, bn:'আল-ইখলাস', ar:'الإخلاص'},
+      {id:68, bn:'আল-ফালাক', ar:'الفلق'},
+      {id:69, bn:'আন-নাস', ar:'الناس'},
+      // many sources write shorter names for the last surahs — ensure we have 114 entries
+    ];
+
+    // If SURAH_META length is shorter than 114 (safety), fill generic names
+    while(SURAH_META.length < 114){
+      const id = SURAH_META.length + 1;
+      SURAH_META.push({ id, bn: `সূরা ${id}`, ar: '' });
+    }
+
+    // Use built-in SURAH_META for display to ensure consistent human-friendly names.
+    async function loadSurahMeta(){
+      // Always return the built-in list. This avoids variations or generic names coming from local quran.json.
+      return SURAH_META;
+    }
+
+    // Shared cache promise so we don't open caches repeatedly
+    const CACHE_NAME = 'quran-app-audio-v3';
+    const cachePromise = ('caches' in window) ? caches.open(CACHE_NAME) : Promise.resolve(null);
+
+    async function cacheFile(url){
+      try{
+        const r = await fetch(url);
+        if(!r || !r.ok) throw new Error('Fetch failed');
+        const cache = await cachePromise;
+        if(cache) await cache.put(url, r.clone());
+        return true;
+      }catch(e){ return false }
+    }
+
+    function makeDownloadBtn(fileUrl){
+      return `<button class="btn download-btn" data-file="${fileUrl}">ডাউনলোড</button>`;
+    }
+
+    // simple semaphore to limit concurrent network/cache operations
+    function createSemaphore(max){
+      let active = 0;
+      const queue = [];
+      return {
+        acquire(){
+          return new Promise(res=>{
+            if(active < max){ active++; res(); }
+            else queue.push(res);
+          });
+        },
+        release(){
+          active = Math.max(0, active-1);
+          if(queue.length){ active++; const r = queue.shift(); r(); }
+        }
+      };
+    }
+
+    const loadSemaphore = createSemaphore(4); // allow up to 4 concurrent fetches
+
+    function createCardHTML(surah, audioPath){
+      return `
+        <div class="card-body flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div>
+            <div class="font-semibold">${surah.id}. ${surah.bn}</div>
+            <div class="text-sm text-muted font-ar">${surah.ar}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <audio preload="none" data-audio="${audioPath}" class="w-full sm:w-64" tabindex="-1"></audio>
+            <div class="custom-controls" style="display:flex;align-items:center;gap:8px;margin-left:8px">
+              <button class="btn small play-toggle" aria-label="Play" aria-pressed="false">▶</button>
+              <input type="range" class="seek" min="0" max="100" value="0" step="0.1" style="width:180px">
+              <span class="time" style="font-size:0.95rem;color:#082d44">0:00 / 0:00</span>
+            </div>
+            ${ makeDownloadBtn(audioPath) }
+            <span class="download-status" style="font-size:0.9rem;color:#0a7a7a"> </span>
+            <span class="loading-spinner" aria-hidden="true" style="display:none;margin-left:6px">⏳</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function fmtTime(secs){
+      if(isNaN(secs) || !isFinite(secs)) return '0:00';
+      const s = Math.floor(secs%60).toString().padStart(2,'0');
+      const m = Math.floor(secs/60).toString();
+      return `${m}:${s}`;
+    }
+
+    // Attach controls to a card's elements (audio exists but may not have src yet)
+    function attachControls(card, audioEl){
+      if(card._controlsAttached) return;
+      card._controlsAttached = true;
+
+      const playBtn = card.querySelector('.play-toggle');
+      const seek = card.querySelector('.seek');
+      const timeLabel = card.querySelector('.time');
+      const dlBtn = card.querySelector('.download-btn');
+      const statusEl = card.querySelector('.download-status');
+
+      audioEl.addEventListener('loadedmetadata', ()=>{
+        if(seek) seek.max = audioEl.duration;
+        if(timeLabel) timeLabel.textContent = `${fmtTime(0)} / ${fmtTime(audioEl.duration)}`;
+        if(statusEl && audioEl.dataset.cached === '1') statusEl.textContent = 'Saved';
+        else if(statusEl) statusEl.textContent = '';
+      }, { once: true });
+
+      audioEl.addEventListener('timeupdate', ()=>{
+        if(seek) seek.value = audioEl.currentTime;
+        if(timeLabel) timeLabel.textContent = `${fmtTime(audioEl.currentTime)} / ${fmtTime(audioEl.duration)}`;
+      });
+
+      audioEl.addEventListener('play', ()=>{
+        try{ document.querySelectorAll('audio').forEach(a=>{ if(a!==audioEl && !a.paused){ try{ a.pause(); }catch(_){} } }); }catch(_){ }
+        if(playBtn){ playBtn.textContent='⏸'; playBtn.setAttribute('aria-pressed','true'); playBtn.setAttribute('aria-label','Pause'); }
+      });
+      audioEl.addEventListener('pause', ()=>{ if(playBtn){ playBtn.textContent='▶'; playBtn.setAttribute('aria-pressed','false'); playBtn.setAttribute('aria-label','Play'); } });
+      audioEl.addEventListener('ended', ()=>{ if(playBtn){ playBtn.textContent='▶'; playBtn.setAttribute('aria-pressed','false'); playBtn.setAttribute('aria-label','Play'); } });
+
+      // Play button triggers loading if needed, then toggles
+      playBtn && playBtn.addEventListener('click', async ()=>{
+        await ensureAudioLoaded(card);
+        try{ if(audioEl.paused) await audioEl.play().catch(()=>{}); else audioEl.pause(); }catch(_){ }
+      });
+
+      seek && seek.addEventListener('input', ()=>{ if(timeLabel) timeLabel.textContent = `${fmtTime(seek.value)} / ${fmtTime(audioEl.duration)}`; });
+      seek && seek.addEventListener('change', ()=>{ try{ audioEl.currentTime = seek.value; }catch(_){ } });
+
+      // download button handled by delegated listener below
+    }
+
+    // HEAD request with timeout; returns {ok, status}
+    async function headCheck(url, timeoutMs = 6000){
+      try{
+        const ctrl = new AbortController();
+        const id = setTimeout(()=>ctrl.abort(), timeoutMs);
+        const res = await fetch(url, { method: 'HEAD', signal: ctrl.signal });
+        clearTimeout(id);
+        return { ok: res && res.ok, status: res ? res.status : 0 };
+      }catch(e){ return { ok: false, status: 0 }; }
+    }
+
+    // load audio for a card: check cache first, then HEAD; set src accordingly
+    async function loadAudioForCard(card){
+      if(card.dataset.loaded === '1' || card.dataset.loading === '1') return;
+      card.dataset.loading = '1';
+      const spinner = card.querySelector('.loading-spinner');
+      const statusEl = card.querySelector('.download-status');
+      if(spinner) spinner.style.display = 'inline';
+
+      await loadSemaphore.acquire();
+      try{
+        const audioEl = card.querySelector('audio');
+        const audioPath = audioEl && (audioEl.dataset.audio || audioEl.getAttribute('data-audio'));
+        if(!audioEl || !audioPath){
+          if(spinner) spinner.style.display = 'none';
+          card.dataset.loaded = '0';
+          return;
+        }
+
+        // check cache
+        const cache = await cachePromise;
+        if(cache){
+          try{
+            const cachedResp = await cache.match(audioPath);
+            if(cachedResp){
+              const blob = await cachedResp.blob();
+              if(blob){
+                audioEl._blobUrl && URL.revokeObjectURL(audioEl._blobUrl);
+                audioEl._blobUrl = URL.createObjectURL(blob);
+                audioEl.src = audioEl._blobUrl;
+                audioEl.dataset.cached = '1';
+                attachControls(card, audioEl);
+                try{ audioEl.load(); }catch(_){ }
+                card.dataset.loaded = '1';
+                if(spinner) spinner.style.display = 'none';
+                return;
+              }
+            }
+          }catch(_){ /* continue to HEAD check */ }
+        }
+
+        // Not in cache. Do a HEAD check first. If HEAD times out or fails, try a few
+        // GET attempts while showing a loading spinner. Only mark Not Available after retries.
+        const head = await headCheck(audioPath, 6000);
+        if(head.ok){
+          // set src to the relative path so browser can stream
+          audioEl.src = audioPath;
+          attachControls(card, audioEl);
+          try{ audioEl.load(); }catch(_){ }
+          card.dataset.loaded = '1';
+          if(spinner) spinner.style.display = 'none';
+          return;
+        } else if(head.status === 404){
+          // missing file
+          if(audioEl) audioEl.style.display = 'none';
+          const dl = card.querySelector('.download-btn'); if(dl) dl.disabled = true;
+          if(statusEl) statusEl.textContent = 'Not Available';
+          card.dataset.loaded = '0';
+          if(spinner) spinner.style.display = 'none';
+          return;
+        } else {
+          // Unknown (timeout/network). Try several GET attempts with spinner and status updates.
+          if(spinner) spinner.style.display = 'inline';
+          if(statusEl) statusEl.textContent = 'Loading...';
+          const maxAttempts = 3;
+          let succeeded = false;
+          for(let attempt = 1; attempt <= maxAttempts; attempt++){
+            try{
+              // small backoff on retries
+              if(attempt > 1) await new Promise(r=>setTimeout(r, 600 * attempt));
+              const ctrl = new AbortController();
+              const id = setTimeout(()=>ctrl.abort(), 9000);
+              const resp = await fetch(audioPath, { method: 'GET', signal: ctrl.signal });
+              clearTimeout(id);
+              if(resp && resp.ok){
+                // cache full response if possible
+                try{ const cache = await cachePromise; if(cache) await cache.put(audioPath, resp.clone()); }catch(_){ }
+                // create blob url to ensure full playback and avoid partial-range caching issues
+                try{
+                  const blob = await resp.blob();
+                  audioEl._blobUrl && URL.revokeObjectURL(audioEl._blobUrl);
+                  audioEl._blobUrl = URL.createObjectURL(blob);
+                  audioEl.src = audioEl._blobUrl;
+                  audioEl.dataset.cached = '1';
+                  attachControls(card, audioEl);
+                  try{ audioEl.load(); }catch(_){ }
+                  card.dataset.loaded = '1';
+                  succeeded = true;
+                  break;
+                }catch(_){ /* continue attempts */ }
+              } else if(resp && resp.status === 404){
+                // definitely missing
+                break;
+              }
+            }catch(e){ /* fetch failed, will retry */ }
+          }
+
+          if(!succeeded){
+            // Final HEAD to confirm 404; otherwise attach optimistic controls and let user try playing.
+            const finalHead = await headCheck(audioPath, 4000);
+            if(finalHead.status === 404){
+              if(audioEl) audioEl.style.display = 'none';
+              const dl = card.querySelector('.download-btn'); if(dl) dl.disabled = true;
+              if(statusEl) statusEl.textContent = 'Not Available';
+              card.dataset.loaded = '0';
+            } else {
+              // couldn't confirm missing; attach controls and set optimistic src so user can attempt play
+              attachControls(card, audioEl);
+              audioEl.src = audioPath; // optimistic
+              try{ audioEl.load(); }catch(_){ }
+              card.dataset.loaded = '1';
+              if(statusEl) statusEl.textContent = '';
+            }
+          } else {
+            if(statusEl) statusEl.textContent = 'Saved';
+          }
+
+          if(spinner) spinner.style.display = 'none';
+          return;
+        }
+      }finally{
+        loadSemaphore.release();
+        delete card.dataset.loading;
+      }
+    }
+
+    // Ensures audio load attempt and returns when finished or failed
+    function ensureAudioLoaded(card){
+      if(card._loadPromise) return card._loadPromise;
+      card._loadPromise = loadAudioForCard(card).finally(()=>{ card._loadPromise = null; });
+      return card._loadPromise;
+    }
+
+    async function initAudioPage(){
+      const container = document.getElementById('audioList');
+      container.innerHTML = '';
+
+      const meta = await loadSurahMeta();
+      for(const surah of meta){
+        const fileName = String(surah.id).padStart(3, '0') + '.mp3';
+        const audioUrl = `./audio/${fileName}`; // relative path for GH pages compatibility
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = createCardHTML(surah, audioUrl);
+        container.appendChild(card);
+      }
+
+      // IntersectionObserver to lazy-load audio when cards are near viewport.
+      // Fallback: if IO not supported, progressively load cards with a small stagger to avoid bursts.
+      if('IntersectionObserver' in window){
+        const observer = new IntersectionObserver((entries)=>{
+          entries.forEach(entry=>{
+            if(entry.isIntersecting){
+              const card = entry.target;
+              ensureAudioLoaded(card);
+              observer.unobserve(card);
+            }
+          });
+        }, { root: null, rootMargin: '300px 0px 300px 0px', threshold: 0.01 });
+        document.querySelectorAll('#audioList .card').forEach(c=>observer.observe(c));
+      }else{
+        // Staggered progressive load: start with first 3, then queue remaining with 250ms gap
+        const cards = Array.from(document.querySelectorAll('#audioList .card'));
+        cards.slice(0, 3).forEach(c=>ensureAudioLoaded(c));
+        let idx = 3;
+        const iv = setInterval(()=>{
+          if(idx >= cards.length){ clearInterval(iv); return; }
+          ensureAudioLoaded(cards[idx]);
+          idx++;
+        }, 250);
+      }
+
+      // Delegated click for download buttons
+      container.addEventListener('click', async (e)=>{
+        const btn = e.target.closest('.download-btn');
+        if(!btn) return;
+        const file = btn.dataset.file;
+        btn.disabled = true;
+        const original = btn.textContent;
+        btn.textContent = 'ডাউনলোড হচ্ছে...';
+        const ok = await cacheFile(file);
+        if(ok){
+          btn.textContent = 'Saved';
+          const s = btn.parentElement && btn.parentElement.querySelector('.download-status');
+          if(s) s.textContent='Saved';
+          // update potential blob URL for already-loaded audio
+          const card = btn.closest('.card');
+          if(card){
+            const audioEl = card.querySelector('audio');
+            try{
+              const cache = await cachePromise;
+              if(cache){
+                const cachedResp = await cache.match(file);
+                if(cachedResp && audioEl){
+                  const blob = await cachedResp.blob();
+                  audioEl._blobUrl && URL.revokeObjectURL(audioEl._blobUrl);
+                  audioEl._blobUrl = URL.createObjectURL(blob);
+                  audioEl.src = audioEl._blobUrl;
+                  audioEl.dataset.cached = '1';
+                }
+              }
+            }catch(_){ }
+          }
+        }else{
+          btn.textContent = 'Failed';
+          btn.disabled = false;
+          setTimeout(()=>btn.textContent = original, 1500);
+        }
+      });
+
+      // Attach handlers to play buttons so a user click also forces loading
+      container.addEventListener('click', (e)=>{
+        const pb = e.target.closest('.play-toggle');
+        if(!pb) return;
+        const card = pb.closest('.card');
+        if(card) ensureAudioLoaded(card);
+      });
+
+    }
+
+    function registerSW() {
+      if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('service-worker.js').catch(() => {});
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => { initAudioPage(); registerSW(); });
+
+    // Revoke any created blob URLs when page is unloaded to free memory
+    window.addEventListener('beforeunload', ()=>{
+      try{ document.querySelectorAll('audio').forEach(a=>{ if(a && a._blobUrl){ try{ URL.revokeObjectURL(a._blobUrl); }catch(_){} a._blobUrl = null; } }); }catch(_){ }
+    });
+  </script>
+
+  <!-- Small helper to force-unregister service workers and clear caches -->
+  <div id="sw-helper" style="position:fixed;right:14px;bottom:14px;z-index:9999">
+    <button id="force-refresh" class="btn primary" style="padding:10px 12px;border-radius:10px;">Fix: Unregister SW & Refresh</button>
+  </div>
+  <script>
+    document.getElementById('force-refresh').addEventListener('click', async function(){
+      try{
+        // Unregister all service workers for this origin
+        if('serviceWorker' in navigator){
+          const regs = await navigator.serviceWorker.getRegistrations();
+          for(const r of regs){ try{ await r.unregister(); }catch(_){} }
+        }
+        // Clear all caches
+        if('caches' in window){
+          const keys = await caches.keys();
+          for(const k of keys){ try{ await caches.delete(k); }catch(_){} }
+        }
+      }catch(e){ /* ignore errors */ }
+      // Force reload and bypass HTTP cache by adding a query param
+      const url = new URL(location.href);
+      url.searchParams.set('sw-refresh', Date.now());
+      location.href = url.toString();
+    });
+  </script>
+</body>
+</html>
