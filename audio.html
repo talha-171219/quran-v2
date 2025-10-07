@@ -6,7 +6,7 @@
   <title>কুরআন অডিও</title>
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#00796B" />
-  <link rel="icon" href="https://i.postimg.cc/KjRpQfZw/Whats-App-Image-2025-10-06-at-12-29-35-b34f48ab.jpg">
+  <link rel="icon" href="icon-192.png" sizes="192x192" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet" />
@@ -45,7 +45,6 @@
     // Built-in surah metadata (Bengali display name + Arabic name) for all 114 surahs.
     // This ensures friendly names are shown even if local quran.json lacks proper titles.
     const SURAH_META = [
-     
       { id: 1, bn: 'আল-ফাতিহা', ar: 'الفاتحة' },
       { id: 2, bn: 'আল-বাকারাহ', ar: 'البقرة' },
       { id: 3, bn: 'আল-ইমরান', ar: 'آل عمران' },
@@ -538,13 +537,23 @@
     function _markPrefetchDone(){ try{ localStorage.setItem(_prefetchKey(), String(Date.now())); }catch(e){} }
 
     async function startBackgroundPrefetch(options = {}){
-      const { count = 5, throttleMs = 400 } = options;
+      // Prefetch a small prioritized set of audio files. Default to 10 files.
+      const { count = 10, throttleMs = 400 } = options;
       // if we've prefetched recently, skip
       if(_prefetchDoneWithin(24)) return;
       try{
         const cache = await cachePromise;
-        for(let i = 1; i <= count; i++){
-          const file = `./audio/${String(i).padStart(3,'0')}.mp3`;
+        // Build priority list: prefer last surahs (short ones) first, then the rest.
+        const priority = [];
+        // last 30 surahs (114 down to 85) are typically short — prioritize them
+        for(let i = 114; i >= 85; i--) priority.push(i);
+        // then add remaining surahs in ascending order, skipping duplicates
+        for(let i = 1; i <= 114; i++) if(!priority.includes(i)) priority.push(i);
+
+        let fetched = 0;
+        for(const idx of priority){
+          if(fetched >= count) break;
+          const file = `./audio/${String(idx).padStart(3,'0')}.mp3`;
           try{
             // skip if already cached
             if(cache){ const m = await cache.match(file); if(m) { continue; } }
@@ -553,6 +562,7 @@
               const r = await fetch(file);
               if(r && r.ok && r.status === 200){
                 try{ if(cache) await cache.put(file, r.clone()); }catch(_){ }
+                fetched++;
               }
             }catch(e){ /* ignore individual failures */ }
             finally{ loadSemaphore.release(); }
