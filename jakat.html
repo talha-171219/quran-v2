@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>জাকাত ক্যালকুলেটর </title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0f1220;
+      --surface: #171a2b;
+      --card: #1d2136;
+      --text: #e8ecff;
+      --muted: #b7c0e6;
+      --primary: #6c8cff;
+      --primary-600: #5877f0;
+      --accent: #22c55e;
+      --danger: #ef4444;
+      --border: #2a3150;
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial;
+      background: radial-gradient(1200px 800px at 20% 0%, #141832 0%, #0c0f1d 60%, #090b17 100%);
+      color: var(--text);
+    }
+
+    .app-header {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(29,33,54,0.85), rgba(23,26,43,0.75));
+      backdrop-filter: blur(8px);
+    }
+    .app-header.sticky { position: sticky; top: 0; z-index: 50; }
+
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand .logo { font-size: 24px; }
+    .brand h1 { font-size: 18px; margin: 0; font-weight: 700; letter-spacing: 0.2px; }
+
+    .back-btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.2s ease;
+      display: none;
+    }
+    .back-btn.show { display: inline-block; }
+    .back-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    .home-btn {
+  display:inline-block;
+  margin-top:12px;
+  padding:10px 16px;
+  background:#18443c;
+  color:#fff;
+  text-decoration:none;
+  border-radius:8px;
+  font-weight:600;
+  transition:background .2s ease;
+}
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 28px 18px 80px;
+    }
+
+    .hero {
+      background: linear-gradient(145deg, #1d2136, #13172a);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .hero h2 { margin-top: 0; font-size: 24px; }
+    .hero p { color: var(--muted); }
+    .cta {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 12px 18px;
+      background: var(--primary);
+      color: white;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: 0.2s ease;
+      cursor: pointer;
+    }
+    .cta:hover { background: var(--primary-600); transform: translateY(-1px); }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+    .card h3 { margin-top: 0; font-size: 18px; }
+    .card p { color: var(--muted); }
+
+    .section {
+      margin-top: 28px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+    .section h2 { margin-top: 0; font-size: 20px; }
+
+    .grid.two {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    @media (max-width: 720px) {
+      .grid.two { grid-template-columns: 1fr; }
+    }
+
+    .field { display: flex; flex-direction: column; gap: 8px; }
+    label { font-weight: 600; }
+    input, select {
+      appearance: none;
+      background: #111426;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 12px;
+      border-radius: 12px;
+      outline: none;
+      transition: border 0.2s ease, box-shadow 0.2s ease;
+    }
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(108, 140, 255, 0.25);
+    }
+    .hint { color: var(--muted); font-size: 12px; }
+
+    .summary-box {
+      margin-top: 14px;
+      background: #151a2e;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px dashed #232a4a;
+    }
+    .summary-item:last-child { border-bottom: none; }
+    .summary-item .label { color: var(--muted); }
+    .summary-item .value { font-weight: 700; }
+    .summary-item.highlight .value { color: var(--accent); font-size: 18px; }
+
+    .actions { display: flex; gap: 12px; margin-top: 16px; }
+    .primary, .secondary, .tertiary {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--primary);
+      color: white;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+    .secondary {
+      background: transparent;
+      color: var(--text);
+    }
+    .tertiary {
+      background: #101327;
+    }
+    .primary:hover { background: var(--primary-600); transform: translateY(-1px); }
+    .secondary:hover, .tertiary:hover { border-color: var(--primary); color: var(--primary); }
+
+    .share-print { display: flex; gap: 10px; margin-top: 12px; }
+
+    .notes {
+      margin-top: 16px;
+      background: #111426;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .notes summary { font-weight: 700; cursor: pointer; }
+    .notes ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); }
+
+    .app-footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 24px 12px 40px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Page switching (SPA style) */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* Print styles */
+    @media print {
+      .app-header, .actions, .share-print { display: none !important; }
+      body { background: white; color: black; }
+      .section, .summary-box, .card { box-shadow: none; border-color: #ccc; }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header sticky">
+    <div class="brand">
+      <span class="logo">🕌</span>
+      <h1>জাকাত ক্যালকুলেটর</h1>
+    </div>
+    <a href="index.html" class="home-btn">🏠 Back to Home</a>
+    <button class="back-btn" id="backHomeBtn">← back</button>
+  </header>
+
+  <main class="container">
+    <!-- Home Page -->
+    <section id="home" class="page active">
+      <div class="hero">
+        <h2>আপনার সম্পদের উপর নির্ভরযোগ্য জাকাত হিসাব করুন</h2>
+        <p>
+          সহজ, পেশাদার এবং নির্ভুল—গোল্ড/সিলভার নিসাব, দায় ও সম্পদের সঠিক সমন্বয়ে ২.৫% জাকাত হিসাব।
+        </p>
+        <button class="cta" id="goCalculator">জাকাত ক্যালকুলেটরে যান</button>
+      </div>
+
+      <section class="features">
+        <div class="card">
+          <h3>নিসাব ভিত্তি</h3>
+          <p>গোল্ড বা সিলভার নিসাব নির্বাচন করুন, গ্রাম প্রতি দাম দিয়ে অটো ক্যালকুলেশন।</p>
+        </div>
+        <div class="card">
+          <h3>সম্পদের ক্যাটাগরি</h3>
+          <p>নগদ, ব্যাংক, সোনা/রুপা, ইনভেস্টমেন্ট, ব্যবসায়িক মাল, পাওনাদি ইত্যাদি।</p>
+        </div>
+        <div class="card">
+          <h3>দায় ও বিল</h3>
+          <p>স্বল্পমেয়াদি দেনা/বিল বাদে নিট সম্পদ থেকে জাকাত হিসাব।</p>
+        </div>
+      </section>
+    </section>
+
+    <!-- Zakat Calculator Page -->
+    <section id="calculator" class="page">
+      <section class="section">
+        <h2>নিসাব সেটিংস</h2>
+
+        <div class="grid two">
+          <div class="field">
+            <label for="currency">কারেন্সি</label>
+            <select id="currency">
+              <option value="৳">বাংলাদেশি টাকা (৳)</option>
+              <option value="$">USD ($)</option>
+              <option value="₹">INR (₹)</option>
+              <option value="£">GBP (£)</option>
+              <option value="€">EUR (€)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="nisabBasis">নিসাব ভিত্তি</label>
+            <select id="nisabBasis">
+              <option value="gold">গোল্ড (৮৫ গ্রাম)</option>
+              <option value="silver">সিলভার (৫৯৫ গ্রাম)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid two">
+          <div class="field">
+            <label for="goldPrice">গোল্ডের দাম (প্রতি গ্রাম)</label>
+            <input type="number" id="goldPrice" placeholder="উদাহরণ: 9000" min="0" step="0.01" />
+            <small class="hint">বর্তমান বাজারদর দিন (প্রতি গ্রাম)।</small>
+          </div>
+
+          <div class="field">
+            <label for="silverPrice">সিলভারের দাম (প্রতি গ্রাম)</label>
+            <input type="number" id="silverPrice" placeholder="উদাহরণ: 120" min="0" step="0.01" />
+            <small class="hint">বর্তমান বাজারদর দিন (প্রতি গ্রাম)।</small>
+          </div>
+        </div>
+
+        <div class="summary-box" id="nisabSummary">
+          <div class="summary-item">
+            <span class="label">নিসাব মূল্য:</span>
+            <span class="value" id="nisabValue">—</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>সম্পদ (জাকাতযোগ্য)</h2>
+
+        <div class="grid two">
+          <div class="field">
+            <label for="cash">নগদ ও ব্যাংক ব্যালেন্স</label>
+            <input type="number" id="cash" placeholder="উদাহরণ: 150000" min="0" step="0.01" />
+            <small class="hint">হাতে নগদ, সেভিংস/কারেন্ট অ্যাকাউন্ট, মোবাইল ওয়ালেট।</small>
+          </div>
+
+          <div class="field">
+            <label for="goldGrams">সোনা (গ্রাম)</label>
+            <input type="number" id="goldGrams" placeholder="উদাহরণ: 50" min="0" step="0.001" />
+            <small class="hint">মোট বিশুদ্ধ সোনার গ্রাম।</small>
+          </div>
+
+          <div class="field">
+            <label for="silverGrams">রুপা (গ্রাম)</label>
+            <input type="number" id="silverGrams" placeholder="উদাহরণ: 200" min="0" step="0.001" />
+            <small class="hint">মোট বিশুদ্ধ রুপার গ্রাম।</small>
+          </div>
+
+          <div class="field">
+            <label for="investments">ইনভেস্টমেন্ট (মার্কেট ভ্যালু)</label>
+            <input type="number" id="investments" placeholder="উদাহরণ: 250000" min="0" step="0.01" />
+            <small class="hint">শেয়ার, মিউচুয়াল ফান্ড, ট্রেডিং পোর্টফোলিও ইত্যাদি।</small>
+          </div>
+
+          <div class="field">
+            <label for="inventory">ব্যবসায়িক মাল/ইনভেন্টরি</label>
+            <input type="number" id="inventory" placeholder="উদাহরণ: 180000" min="0" step="0.01" />
+            <small class="hint">বিক্রির উদ্দেশ্যে থাকা পণ্যের বিক্রয়মূল্য।</small>
+          </div>
+
+          <div class="field">
+            <label for="receivables">পাওনাদি (আসল পাওয়া যাবে)</label>
+            <input type="number" id="receivables" placeholder="উদাহরণ: 50000" min="0" step="0.01" />
+            <small class="hint">বিশ্বাসযোগ্য পাওনা যা এক বছরের মধ্যে পাওয়া যাবে।</small>
+          </div>
+
+          <div class="field">
+            <label for="otherAssets">অন্যান্য জাকাতযোগ্য সম্পদ</label>
+            <input type="number" id="otherAssets" placeholder="উদাহরণ: 20000" min="0" step="0.01" />
+            <small class="hint">ভাড়ার জমা, ট্রেডেবল ক্রিপ্টো, ইত্যাদি (অ-জাকাতযোগ্য সম্পদ বাদ দিন)।</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>দায় (বাদ যাবে)</h2>
+        <div class="grid two">
+          <div class="field">
+            <label for="shortDebts">স্বল্পমেয়াদি দেনা (১ বছরের মধ্যে)</label>
+            <input type="number" id="shortDebts" placeholder="উদাহরণ: 70000" min="0" step="0.01" />
+            <small class="hint">ক্রেডিট কার্ড, মাসিক বিল, কর/যাকাতযোগ্য সময়ের দেনা ইত্যাদি।</small>
+          </div>
+
+          <div class="field">
+            <label for="bills">অমীমাংসিত বিল/খরচ</label>
+            <input type="number" id="bills" placeholder="উদাহরণ: 15000" min="0" step="0.01" />
+            <small class="hint">ইউটিলিটি বিল, বেতন, অনির্বাহিত খরচ যেগুলো শীঘ্রই দিতে হবে।</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="actions">
+        <button class="primary" id="calculateBtn">হিসাব করুন</button>
+        <button class="secondary" id="resetBtn">রিসেট</button>
+      </section>
+
+      <section class="section">
+        <h2>ফলাফল</h2>
+
+        <div class="summary-box">
+          <div class="summary-item">
+            <span class="label">মোট সম্পদ:</span>
+            <span class="value" id="totalAssets">—</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">মোট দায়:</span>
+            <span class="value" id="totalLiabilities">—</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">নিট জাকাতযোগ্য সম্পদ:</span>
+            <span class="value" id="netAssets">—</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">নিসাব তুলনা:</span>
+            <span class="value" id="nisabCompare">—</span>
+          </div>
+          <div class="summary-item highlight">
+            <span class="label">জাকাত (২.৫%):</span>
+            <span class="value" id="zakatDue">—</span>
+          </div>
+        </div>
+
+        <div class="share-print">
+          <button class="tertiary" id="copySummary">কপি করুন</button>
+          <button class="tertiary" onclick="window.print()">প্রিন্ট</button>
+        </div>
+
+        <details class="notes">
+          <summary>নোট ও নির্দেশনা</summary>
+          <ul>
+            <li><strong>হার:</strong> জাকাতের মানক হার ২.৫% (১/৪০)।</li>
+            <li><strong>নিসাব:</strong> গোল্ড ৮৫ গ্রাম বা সিলভার ৫৯৫ গ্রাম সমমূল্যের নিসাবের উপরে হলেই জাকাত বাধ্যতামূলক।</li>
+            <li><strong>বাদ যাবে:</strong> কেবল স্বল্পমেয়াদি দাবী/দেনা; দীর্ঘমেয়াদি লোনের কেবল নিকটবর্তী কিস্তি অংশ।</li>
+            <li><strong>অ-জাকাতযোগ্য:</strong> ব্যক্তিগত বাড়ি, গাড়ি (ব্যক্তিগত ব্যবহার), ব্যক্তিগত পোশাক ইত্যাদি।</li>
+            <li><strong>সময়:</strong> বার্ষিক হিসাবের জন্য একই তারিখে সম্পদের ধারাবাহিকতা বিবেচনা করুন।</li>
+          </ul>
+        </details>
+      </section>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>© <span id="year"></span> জাকাত ক্যালকুলেটর • আল্লাহ কবুল করুন</p>
+  </footer>
+
+  <script>
+    // Page switcher (simulate separate pages in one file)
+    const pages = {
+      home: document.getElementById('home'),
+      calculator: document.getElementById('calculator')
+    };
+    const backHomeBtn = document.getElementById('backHomeBtn');
+    const goCalculatorBtn = document.getElementById('goCalculator');
+
+    function showPage(name) {
+      Object.values(pages).forEach(p => p.classList.remove('active'));
+      pages[name].classList.add('active');
+
+      // Toggle back button
+      if (name === 'calculator') {
+        backHomeBtn.classList.add('show');
+      } else {
+        backHomeBtn.classList.remove('show');
+      }
+
+      // Scroll to top for better UX
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    goCalculatorBtn.addEventListener('click', () => showPage('calculator'));
+    backHomeBtn.addEventListener('click', () => showPage('home'));
+
+    // Footer year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // -------- Calculator Logic --------
+    function num(id) {
+      const el = document.getElementById(id);
+      const v = parseFloat(el.value);
+      return isNaN(v) ? 0 : v;
+    }
+
+    function fmtCurrency(symbol, value) {
+      try {
+        return `${symbol} ${value.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+      } catch {
+        return `${symbol} ${Math.round(value * 100) / 100}`;
+      }
+    }
+
+    function computeNisab(basis, goldPrice, silverPrice) {
+      const GOLD_THRESHOLD_GRAMS = 85;
+      const SILVER_THRESHOLD_GRAMS = 595;
+      if (basis === 'gold') {
+        return GOLD_THRESHOLD_GRAMS * goldPrice;
+      } else {
+        return SILVER_THRESHOLD_GRAMS * silverPrice;
+      }
+    }
+
+    function updateNisabDisplay() {
+      const symbol = document.getElementById('currency').value;
+      const basis = document.getElementById('nisabBasis').value;
+      const goldPrice = num('goldPrice');
+      const silverPrice = num('silverPrice');
+      const nisab = computeNisab(basis, goldPrice, silverPrice);
+      document.getElementById('nisabValue').textContent =
+        nisab > 0 ? fmtCurrency(symbol, nisab) : 'দয়া করে দাম দিন';
+    }
+
+    function calculate() {
+      const symbol = document.getElementById('currency').value;
+      const basis = document.getElementById('nisabBasis').value;
+      const goldPrice = num('goldPrice');
+      const silverPrice = num('silverPrice');
+
+      const nisab = computeNisab(basis, goldPrice, silverPrice);
+      document.getElementById('nisabValue').textContent =
+        nisab > 0 ? fmtCurrency(symbol, nisab) : 'দয়া করে দাম দিন';
+
+      // Assets
+      const cash = num('cash');
+      const goldGrams = num('goldGrams');
+      const silverGrams = num('silverGrams');
+      const investments = num('investments');
+      const inventory = num('inventory');
+      const receivables = num('receivables');
+      const otherAssets = num('otherAssets');
+
+      const goldValue = goldGrams * goldPrice;
+      const silverValue = silverGrams * silverPrice;
+
+      const totalAssets =
+        cash + goldValue + silverValue + investments + inventory + receivables + otherAssets;
+
+      // Liabilities
+      const shortDebts = num('shortDebts');
+      const bills = num('bills');
+      const totalLiabilities = shortDebts + bills;
+
+      const netAssets = Math.max(0, totalAssets - totalLiabilities);
+
+      let compareText = 'নিসাব মূল্য প্রয়োজনীয় ডেটা দিন';
+      let zakatDue = 0;
+
+      if (nisab > 0) {
+        if (netAssets >= nisab) {
+          compareText = 'নিট সম্পদ নিসাবের উপরে ✅';
+          zakatDue = netAssets * 0.025; // 2.5%
+        } else {
+          compareText = 'নিট সম্পদ নিসাবের নিচে ❌';
+          zakatDue = 0;
+        }
+      }
+
+      document.getElementById('totalAssets').textContent = fmtCurrency(symbol, totalAssets);
+      document.getElementById('totalLiabilities').textContent = fmtCurrency(symbol, totalLiabilities);
+      document.getElementById('netAssets').textContent = fmtCurrency(symbol, netAssets);
+      document.getElementById('nisabCompare').textContent = compareText;
+      document.getElementById('zakatDue').textContent = fmtCurrency(symbol, zakatDue);
+
+      const summary = [
+        `কারেন্সি: ${symbol}`,
+        `নিসাব ভিত্তি: ${basis === 'gold' ? 'গোল্ড (৮৫ গ্রাম)' : 'সিলভার (৫৯৫ গ্রাম)'}`,
+        `নিসাব মূল্য: ${nisab > 0 ? fmtCurrency(symbol, nisab) : '—'}`,
+        `মোট সম্পদ: ${fmtCurrency(symbol, totalAssets)}`,
+        `মোট দায়: ${fmtCurrency(symbol, totalLiabilities)}`,
+        `নিট জাকাতযোগ্য সম্পদ: ${fmtCurrency(symbol, netAssets)}`,
+        `নিসাব তুলনা: ${compareText}`,
+        `জাকাত (২.৫%): ${fmtCurrency(symbol, zakatDue)}`
+      ].join('\n');
+
+      document.getElementById('copySummary').onclick = async () => {
+        try {
+          await navigator.clipboard.writeText(summary);
+          const btn = document.getElementById('copySummary');
+          const old = btn.textContent;
+          btn.textContent = 'কপি হয়েছে ✅';
+          setTimeout(() => (btn.textContent = old), 1200);
+        } catch (e) {
+          alert('কপি করা যায়নি।');
+        }
+      };
+    }
+
+    function resetForm() {
+      const ids = [
+        'goldPrice','silverPrice','cash','goldGrams','silverGrams','investments',
+        'inventory','receivables','otherAssets','shortDebts','bills'
+      ];
+      ids.forEach(id => (document.getElementById(id).value = ''));
+      document.getElementById('nisabValue').textContent = '—';
+      document.getElementById('totalAssets').textContent = '—';
+      document.getElementById('totalLiabilities').textContent = '—';
+      document.getElementById('netAssets').textContent = '—';
+      document.getElementById('nisabCompare').textContent = '—';
+      document.getElementById('zakatDue').textContent = '—';
+    }
+
+    function attachLiveListeners() {
+      ['nisabBasis','goldPrice','silverPrice','currency'].forEach(id => {
+        document.getElementById(id).addEventListener('input', updateNisabDisplay);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      attachLiveListeners();
+      document.getElementById('calculateBtn').addEventListener('click', calculate);
+      document.getElementById('resetBtn').addEventListener('click', resetForm);
+      updateNisabDisplay();
+    });
+  </script>
+</body>
+</html>
